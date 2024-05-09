@@ -1,0 +1,11 @@
+add_executable(blackjack
+  main.cpp
+  BlackjackGame.h
+  BlackjackGame.cpp
+  card.h
+  CompileTimeChecks.h
+  deck.h
+  deck.cpp
+  streaming.h
+  streaming.cpp
+)
