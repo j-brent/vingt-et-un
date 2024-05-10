@@ -1,4 +1,4 @@
-#include "BlackJackGame.h"
+#include "blackjack-game.h"
 #include "streaming.h"
 
 #include <algorithm>
