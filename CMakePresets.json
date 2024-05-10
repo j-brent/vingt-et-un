@@ -66,13 +66,27 @@
       }
     },
     {
-      "name": "windows",
+      "name": "windows-release",
       "configurePreset": "windows",
+      "configuration": "Release",
       "inherits": "default"
     },
     {
-      "name": "linux",
+      "name": "windows-debug",
+      "configurePreset": "windows",
+      "configuration": "Debug",
+      "inherits": "default"
+    },
+    {
+      "name": "linux-release",
       "configurePreset": "linux",
+      "configuration": "Release",
+      "inherits": "default"
+    },
+    {
+      "name": "linux-debug",
+      "configurePreset": "linux",
+      "configuration": "Debug",
       "inherits": "default"
     }
   ],
@@ -91,7 +105,7 @@
         },
         {
           "type": "test",
-          "name": "windows"
+          "name": "windows-release"
         }
       ]
     },
@@ -108,7 +122,7 @@
         },
         {
           "type": "test",
-          "name": "windows"
+          "name": "windows-debug"
         }
       ]
     },
@@ -125,7 +139,7 @@
         },
         {
           "type": "test",
-          "name": "linux"
+          "name": "linux-release"
         }
       ]
     }
