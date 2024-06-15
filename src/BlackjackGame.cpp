@@ -1,4 +1,4 @@
-#include "BlackJackGame.h"
+#include "BlackjackGame.h"
 
 #include <numeric>
 
