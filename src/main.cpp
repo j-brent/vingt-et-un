@@ -48,7 +48,7 @@ namespace blackjack_io
 		std::cout << line << std::endl;
 	}
 
-	CardGames::BlackJack::GamePlay get_move()
+	CardGames::BlackJack::Game::Play get_move()
 	{
 
 		auto user_input = 0;
@@ -63,8 +63,8 @@ namespace blackjack_io
 		} while (!user_input_is_valid);
 
 		switch (user_input) {
-			case 'h': return CardGames::BlackJack::GamePlay::Hit;
-			case 's': return CardGames::BlackJack::GamePlay::Stay;
+			case 'h': return CardGames::BlackJack::Game::Play::Hit;
+			case 's': return CardGames::BlackJack::Game::Play::Stay;
 			default: {
 				std::cout << "Invalid move: " << user_input << "\nQuitting game.";
 				exit(1);
@@ -72,11 +72,11 @@ namespace blackjack_io
 		}
 	}
 
-	CardGames::BlackJack::GamePlay dealers_strategy(const std::vector<Card>& dealers_hand)
+	CardGames::BlackJack::Game::Play dealers_strategy(const std::vector<Card>& dealers_hand)
 	{
 		auto total = blackjack_v0::add_em_up(dealers_hand);
-		return (total < 17) ? CardGames::BlackJack::GamePlay::Hit
-												: CardGames::BlackJack::GamePlay::Stay;
+		return (total < 17) ? CardGames::BlackJack::Game::Play::Hit
+												: CardGames::BlackJack::Game::Play::Stay;
 	}
 
 	void print_all_cards_face_up(const CardGames::BlackJack::GameState& state)
@@ -137,9 +137,9 @@ void play_blackjack()
 	using namespace CardGames;
 
 	auto game = BlackJack::Game{};
-	auto state = game.next(BlackJack::GamePlay::Deal);
+	auto state = game.next(BlackJack::Game::Play::Deal);
 	blackjack_io::print_game_state(state);
-
+  
 	assert(state.node() == BlackJack::GameNode::PlayersRound);
 	while (state.node() == BlackJack::GameNode::PlayersRound) {
 

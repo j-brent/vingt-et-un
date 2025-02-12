@@ -87,7 +87,8 @@ std::wostream& operator<<(std::wostream& os, const Rank& value)
 	return os;
 }
 
-#ifdef _WIN32
+// #ifdef _WIN32
+#if 0
 std::wostream& operator<<(std::wostream& os, const Suit& suit)
 {
 	switch (suit) {
