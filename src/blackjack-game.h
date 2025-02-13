@@ -68,7 +68,7 @@ namespace CardGames
 			const GameState& state() const { return history.back(); }
 
 		private:
-      std::vector<GameState> history = {GameState{GameNode::Ready, {}, {}, shuffle(Deck{})}};
+      std::vector<GameState> history = {GameState{}};
 		};
 
 	} // namespace BlackJack

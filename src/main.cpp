@@ -59,6 +59,7 @@ namespace blackjack_io
 			}
 			writeline("Press 'h' to hit or 's' to stay.");
 			user_input = std::cin.get();
+      std::cin.get(); // flush out 'Enter'
 			user_input_is_valid = user_input == 'h' || user_input == 's';
 		} while (!user_input_is_valid);
 
@@ -137,24 +138,22 @@ void play_blackjack()
 	using namespace CardGames;
 
 	auto game = BlackJack::Game{};
+	blackjack_io::print_game_state(game.state());
+
 	auto state = game.next(BlackJack::Game::Play::Deal);
 	blackjack_io::print_game_state(state);
   
-	assert(state.node() == BlackJack::GameNode::PlayersRound);
 	while (state.node() == BlackJack::GameNode::PlayersRound) {
-
 		const auto players_move = blackjack_io::get_move();
 		state = game.next(players_move);
 		blackjack_io::print_game_state(state);
 	}
 
-	if (state.node() == BlackJack::GameNode::DealersRound) {
-		while (state.node() == BlackJack::GameNode::DealersRound) {
-			const auto dealers_move = blackjack_io::dealers_strategy(state.dealers_hand());
-			state = game.next(dealers_move);
-			blackjack_io::print_game_state(state);
-		}
-	}
+  while (state.node() == BlackJack::GameNode::DealersRound) {
+    const auto dealers_move = blackjack_io::dealers_strategy(state.dealers_hand());
+    state = game.next(dealers_move);
+    blackjack_io::print_game_state(state);
+  }
 }
 
 #if 0
