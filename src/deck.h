@@ -82,6 +82,11 @@ inline bool operator==(const Deck& lhs, const Deck& rhs)
 				 std::equal(begin(lhs_cards), end(lhs_cards), begin(rhs_cards));
 }
 
+inline bool operator!=(const Deck& lhs, const Deck& rhs)
+{
+  return !(lhs == rhs);
+}
+
 static_assert(is_regular<Deck>::value, "User-defined type Deck is not a regular type.");
 
 Deck shuffle(const Deck& deck);
