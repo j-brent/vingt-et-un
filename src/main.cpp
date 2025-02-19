@@ -11,6 +11,8 @@ namespace blackjack_v0
 {
 	int add_em_up(const std::vector<Card>& hand)
 	{
+    using Rank = Card::Rank;
+    using Suit = Card::Suit;
 
 		auto values = std::vector<int>(hand.size());
 		std::transform(begin(hand), end(hand), std::back_inserter(values), [](const Card& card) {

@@ -12,10 +12,10 @@ namespace CardGames
 			auto values = std::vector<int>(hand.size());
 			std::transform(begin(hand), end(hand), std::back_inserter(values), [](const Card& card) {
 				switch (card.rank) {
-					case Rank::Ace: return 11;
-					case Rank::King:
-					case Rank::Queen:
-					case Rank::Jack: return 10;
+					case Card::Rank::Ace: return 11;
+					case Card::Rank::King:
+					case Card::Rank::Queen:
+					case Card::Rank::Jack: return 10;
 					default: return static_cast<int>(card.rank);
 				}
 			});

@@ -16,8 +16,10 @@ namespace
 	}
 } // namespace
 
-std::ostream& operator<<(std::ostream& os, const Rank& value)
+std::ostream& operator<<(std::ostream& os, const Card::Rank& value)
 {
+  using Rank = Card::Rank;
+
 	switch (value) {
 		case Rank::Two: os << "2"; break;
 		case Rank::Three: os << "3"; break;
@@ -37,8 +39,10 @@ std::ostream& operator<<(std::ostream& os, const Rank& value)
 	return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const Suit& suit)
+std::ostream& operator<<(std::ostream& os, const Card::Suit& suit)
 {
+  using Suit = Card::Suit;
+
 	switch (suit) {
 		case Suit::Clubs: os << "Clubs"; break;
 		case Suit::Diamonds: os << "Diamonds"; break;
@@ -66,8 +70,10 @@ void print(const Deck& deck)
 
 // unicode printing
 
-std::wostream& operator<<(std::wostream& os, const Rank& value)
+std::wostream& operator<<(std::wostream& os, const Card::Rank& value)
 {
+  using Rank = Card::Rank;
+
 	switch (value) {
 		case Rank::Two: os << L" 2"; break;
 		case Rank::Three: os << L" 3"; break;
@@ -101,8 +107,10 @@ std::wostream& operator<<(std::wostream& os, const Suit& suit)
 	return os;
 }
 #else
-std::wostream& operator<<(std::wostream& os, const Suit& suit)
+std::wostream& operator<<(std::wostream& os, const Card::Suit& suit)
 {
+  using Suit = Card::Suit;
+  
 	switch (suit) {
 		case Suit::Clubs: os << L"C"; break;
 		case Suit::Diamonds: os << L"D"; break;

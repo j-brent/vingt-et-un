@@ -3,8 +3,8 @@
 #include "card.h"
 #include "deck.h"
 
-std::ostream& operator<<(std::ostream& os, const Rank& value);
-std::ostream& operator<<(std::ostream& os, const Suit& suit);
+std::ostream& operator<<(std::ostream& os, const Card::Rank& value);
+std::ostream& operator<<(std::ostream& os, const Card::Suit& suit);
 std::ostream& operator<<(std::ostream& os, const Card& card);
 
 void print(const Deck& deck);
