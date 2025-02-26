@@ -42,6 +42,9 @@ SCENARIO("Basic properties of a deck of cards")
 
 SCENARIO("Slicing ranks and suits")
 {
+  using Rank = Card::Rank;
+  using Suit = Card::Suit;
+
   GIVEN("Some cards")
   {
     const auto cards = std::vector<Card>{
@@ -63,6 +66,42 @@ SCENARIO("Slicing ranks and suits")
       THEN("We get the ranks")
       {
         CHECK(slice_face_values(cards) == std::vector<Rank>{Rank::Ace, Rank::King, Rank::Queen});
+      }
+    }
+  }
+}
+
+SCENARIO("Dealing cards in order")
+{
+  using Rank = Card::Rank;
+  using Suit = Card::Suit;
+
+  GIVEN("Some cards in a specific order")
+  {
+    const std::vector<Card> cards = {
+      {Rank::Ace, Suit::Clubs},
+      {Rank::Ace, Suit::Hearts},
+      {Rank::Ace, Suit::Diamonds},
+      {Rank::Ace, Suit::Spades},
+      {Rank::Two, Suit::Clubs},
+    };
+    auto deck = Deck{cards};
+
+    WHEN("Dealing the cards off the top of the deck")
+    {
+      const auto c0 = deck.deal();
+      const auto c1 = deck.deal();
+      const auto c2 = deck.deal();
+      const auto c3 = deck.deal();
+      const auto c4 = deck.deal();
+
+      THEN("The cards come out in the same order")
+      {
+        CHECK( c0 == cards.at(0) );
+        CHECK( c1 == cards.at(1) );
+        CHECK( c2 == cards.at(2) );
+        CHECK( c3 == cards.at(3) );
+        CHECK( c4 == cards.at(4) );
       }
     }
   }

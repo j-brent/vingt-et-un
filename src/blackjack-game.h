@@ -7,7 +7,6 @@ namespace CardGames
 {
 	namespace BlackJack
 	{
-
 		enum class GameNode {
 			Ready,
 			PlayersRound,
@@ -61,18 +60,15 @@ namespace CardGames
 		static_assert(is_regular<GameState>::value,
 									"User-defined type GameState is not a regular type.");
 
-		using GameHistory = std::vector<GameState>;
-
-		enum class GamePlay { Deal, Hit, Stay };
-
-		class Game
-		{
-		public:
+    class Game
+    {
+    public:
+      enum class Play { Deal, Hit, Stay };
+			const GameState& next(Play play);
 			const GameState& state() const { return history.back(); }
-			const GameState& next(GamePlay play);
 
 		private:
-			GameHistory history = {GameState{GameNode::Ready, {}, {}, shuffle(Deck{})}};
+      std::vector<GameState> history = {GameState{}};
 		};
 
 	} // namespace BlackJack

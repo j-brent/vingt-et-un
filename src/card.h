@@ -4,6 +4,8 @@
 
 #include <vector>
 
+struct Card {
+  
 enum class Suit { Clubs, Diamonds, Hearts, Spades };
 
 enum class Rank {
@@ -22,7 +24,6 @@ enum class Rank {
 	Ace = 14
 };
 
-struct Card {
 	Card() = default;
 	Card(Rank rank, Suit suit)
 		: suit{suit}
