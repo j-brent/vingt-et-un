@@ -11,7 +11,7 @@
       "name": "windows",
       "displayName": "Windows configuration for both Relase and Debug builds",
       "description": "",
-      "generator": "Visual Studio 16 2019",
+      "generator": "Visual Studio 17 2022",
       "binaryDir": "${sourceDir}/build-win",
       "condition": {
         "type": "equals",

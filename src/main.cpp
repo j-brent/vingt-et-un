@@ -9,35 +9,15 @@
 
 namespace blackjack_v0
 {
-	int add_em_up(const std::vector<Card>& hand)
-	{
-    using Rank = Card::Rank;
-    using Suit = Card::Suit;
-
-		auto values = std::vector<int>(hand.size());
-		std::transform(begin(hand), end(hand), std::back_inserter(values), [](const Card& card) {
-			switch (card.rank) {
-				case Rank::Ace: return 11;
-				case Rank::King:
-				case Rank::Queen:
-				case Rank::Jack: return 10;
-				default: return static_cast<int>(card.rank);
-			}
-		});
-
-		return std::accumulate(begin(values), end(values), 0,
-													 [](auto acc, auto value) { return acc + value; });
-	}
-
 	char naive_strategy(const std::vector<Card>& hand)
 	{
-		auto total = add_em_up(hand);
+		auto total = CardGames::BlackJack::add_em_up(hand);
 		return total < 18 ? 'h' : 's';
 	}
 
 	char dealers_strategy(const std::vector<Card>& hand)
 	{
-		auto total = add_em_up(hand);
+		auto total = CardGames::BlackJack::add_em_up(hand);
 		return total < 17 ? 'h' : 's';
 	}
 } // namespace blackjack_v0
@@ -77,7 +57,7 @@ namespace blackjack_io
 
 	CardGames::BlackJack::Game::Play dealers_strategy(const std::vector<Card>& dealers_hand)
 	{
-		auto total = blackjack_v0::add_em_up(dealers_hand);
+		auto total = CardGames::BlackJack::add_em_up(dealers_hand);
 		return (total < 17) ? CardGames::BlackJack::Game::Play::Hit
 												: CardGames::BlackJack::Game::Play::Stay;
 	}
@@ -103,30 +83,30 @@ namespace blackjack_io
 			print_hand_hide_some(dealers_hand, 1);
 			std::cout << "Player: ";
 			print_hand(players_hand);
-			std::cout << "(" << blackjack_v0::add_em_up(players_hand) << ")" << std::endl;
+			std::cout << "(" << CardGames::BlackJack::add_em_up(players_hand) << ")" << std::endl;
 		} else if (state.node() == GameNode::GameOverPlayerWins) {
 			print_all_cards_face_up(state);
-			const auto player = blackjack_v0::add_em_up(state.players_hand());
-			const auto dealer = blackjack_v0::add_em_up(state.dealers_hand());
+			const auto player = CardGames::BlackJack::add_em_up(state.players_hand());
+			const auto dealer = CardGames::BlackJack::add_em_up(state.dealers_hand());
 			writeline("Congratulations! You win, " + std::to_string(player) + " to " +
 								std::to_string(dealer));
 		} else if (state.node() == GameNode::GameOverPlayerBusts) {
 			print_all_cards_face_up(state);
-			const auto player = blackjack_v0::add_em_up(state.players_hand());
+			const auto player = CardGames::BlackJack::add_em_up(state.players_hand());
 			writeline("Sorry, you bust(" + std::to_string(player) + "). Dealer wins.");
 		} else if (state.node() == GameNode::GameOverDealerWins) {
 			print_all_cards_face_up(state);
-			const auto player = blackjack_v0::add_em_up(state.players_hand());
-			const auto dealer = blackjack_v0::add_em_up(state.dealers_hand());
+			const auto player = CardGames::BlackJack::add_em_up(state.players_hand());
+			const auto dealer = CardGames::BlackJack::add_em_up(state.dealers_hand());
 			writeline("Dealer wins, " + std::to_string(dealer) + " to " + std::to_string(player));
 		} else if (state.node() == GameNode::GameOverDealerBusts) {
 			print_all_cards_face_up(state);
-			const auto dealer = blackjack_v0::add_em_up(state.dealers_hand());
+			const auto dealer = CardGames::BlackJack::add_em_up(state.dealers_hand());
 			writeline("Dealer busts (" + std::to_string(dealer) + "). You win!");
 		} else if (state.node() == GameNode::GameOverDraw) {
 			print_all_cards_face_up(state);
-			const auto player = blackjack_v0::add_em_up(state.players_hand());
-			const auto dealer = blackjack_v0::add_em_up(state.dealers_hand());
+			const auto player = CardGames::BlackJack::add_em_up(state.players_hand());
+			const auto dealer = CardGames::BlackJack::add_em_up(state.dealers_hand());
 			assert(player == dealer);
 			writeline("Draw, " + std::to_string(dealer) + " up.");
 		} else {
@@ -168,7 +148,7 @@ void play_blackjack_v0() {
   print_hand_hide_some(dealers_hand, 1);
   std::cout << "Player: ";
   print_hand(players_hand);
-  std::cout << "(" << blackjack_v0::add_em_up(players_hand) << ")" << std::endl;
+  std::cout << "(" << CardGames::BlackJack::add_em_up(players_hand) << ")" << std::endl;
 
   //***************************************//
   //										                   //
@@ -189,9 +169,9 @@ void play_blackjack_v0() {
         print_hand_hide_some(dealers_hand, 1);
         std::cout << "Player: ";
         print_hand(players_hand);
-        std::cout << "(" << blackjack_v0::add_em_up(players_hand) << ")"
+        std::cout << "(" << CardGames::BlackJack::add_em_up(players_hand) << ")"
                   << std::endl;
-        if (blackjack_v0::add_em_up(players_hand) > 21) {
+        if (CardGames::BlackJack::add_em_up(players_hand) > 21) {
           std::cout << "Sorry, you bust. Dealer wins." << std::endl;
           player_busts = true;
           break;
@@ -228,9 +208,9 @@ void play_blackjack_v0() {
         print_hand(dealers_hand);
         std::cout << "Player: ";
         print_hand(players_hand);
-        std::cout << "(" << blackjack_v0::add_em_up(players_hand) << ")"
+        std::cout << "(" << CardGames::BlackJack::add_em_up(players_hand) << ")"
                   << std::endl;
-        if (blackjack_v0::add_em_up(dealers_hand) > 21) {
+        if (CardGames::BlackJack::add_em_up(dealers_hand) > 21) {
           std::cout << "Dealer busts. You win!" << std::endl;
           dealer_busts = true;
           break;
@@ -262,8 +242,8 @@ void play_blackjack_v0() {
     std::cout << "Player: ";
     print_hand(players_hand);
 
-    const auto player = blackjack_v0::add_em_up(players_hand);
-    const auto dealer = blackjack_v0::add_em_up(dealers_hand);
+    const auto player = CardGames::BlackJack::add_em_up(players_hand);
+    const auto dealer = CardGames::BlackJack::add_em_up(dealers_hand);
     const auto player_busts = player > 21;
     const auto dealer_busts = dealer > 21;
     if (player_busts || (dealer > player && !dealer_busts)) {
