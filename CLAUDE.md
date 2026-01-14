@@ -22,6 +22,9 @@ Tests use Catch2 (fetched automatically via CMake).
 # Run all tests
 ctest --preset windows-release   # or linux-release
 
+# Run single test by name
+ctest --preset windows-release -R "Game states"
+
 # Full workflow (configure + build + test)
 cmake --workflow --preset windows-release
 ```
@@ -35,8 +38,10 @@ C++ blackjack game with a `cardgames` static library and `blackjack` executable.
 - `Deck` - Card container with shuffle/deal operations
 - `CardGames::BlackJack::Game` - State machine managing game flow via `GameNode` enum (Ready → PlayersRound → DealersRound → GameOver*)
 - `GameState` - Immutable snapshot holding hands, deck, and current node
+- `add_em_up(hand)` - Calculates blackjack hand value (Ace=11, face cards=10)
 
 **Design patterns**:
 - All core types use `static_assert(is_regular<T>)` to enforce regular type semantics (copyable, comparable)
 - Game uses history-based state tracking (vector of GameState)
 - Player actions: `Deal`, `Hit`, `Stay`
+- Blackjack (21 on initial deal) immediately wins/loses - no PlayersRound

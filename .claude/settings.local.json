@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\ndocs: Add CLAUDE.md for Claude Code guidance\n\nProvides build commands, test instructions, and architecture overview\nfor the blackjack game codebase.\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(cmake:*)",
+      "Bash(cmd.exe //c \"cmake --preset windows\")"
+    ]
+  }
+}
