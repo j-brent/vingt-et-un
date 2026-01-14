@@ -36,7 +36,16 @@ SCENARIO("Game states")
 
         THEN("...as expected")
         {
-          CHECK(gs.node() == GameNode::PlayersRound);
+          const auto player_blackjack = add_em_up(gs.players_hand()) == 21;
+          const auto dealer_blackjack = add_em_up(gs.dealers_hand()) == 21;
+
+          if (player_blackjack) {
+            CHECK(gs.node() == GameNode::GameOverPlayerWins);
+          } else if (dealer_blackjack) {
+            CHECK(gs.node() == GameNode::GameOverDealerWins);
+          } else {
+            CHECK(gs.node() == GameNode::PlayersRound);
+          }
           CHECK(gs.players_hand().size() == 2);
           CHECK(gs.dealers_hand().size() == 2);
           CHECK(gs.deck().cards().size() == 48);

@@ -71,5 +71,7 @@ namespace CardGames
       std::vector<GameState> history = {GameState{}};
 		};
 
+		int add_em_up(const std::vector<Card>& hand);
+
 	} // namespace BlackJack
 } // namespace CardGames
