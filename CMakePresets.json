@@ -32,32 +32,29 @@
     },
     {
       "name": "windows-qml",
-      "displayName": "Windows QML build (vcpkg)",
+      "displayName": "Windows QML build",
       "inherits": "windows",
       "binaryDir": "${sourceDir}/build-win-qml",
       "cacheVariables": {
-        "ENABLE_QML": "ON",
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        "ENABLE_QML": "ON"
       }
     },
     {
       "name": "linux-qml",
-      "displayName": "Linux QML build with GCC (vcpkg)",
+      "displayName": "Linux QML build with GCC",
       "inherits": "linux",
       "binaryDir": "${sourceDir}/build-linux-qml",
       "cacheVariables": {
-        "ENABLE_QML": "ON",
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        "ENABLE_QML": "ON"
       }
     },
     {
       "name": "linux-clang-qml",
-      "displayName": "Linux QML build with Clang (vcpkg)",
+      "displayName": "Linux QML build with Clang",
       "inherits": "linux",
       "binaryDir": "${sourceDir}/build-linux-clang-qml",
       "cacheVariables": {
         "ENABLE_QML": "ON",
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
         "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++"
       }

@@ -1,0 +1,54 @@
+name: CMake QML build
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'app/qml/**'
+      - 'CMakeLists.txt'
+      - 'CMakePresets.json'
+      - '.github/workflows/cmake-qml.yml'
+  pull_request:
+    branches: ["main"]
+    paths:
+      - 'app/qml/**'
+      - 'CMakeLists.txt'
+      - 'CMakePresets.json'
+      - '.github/workflows/cmake-qml.yml'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            preset: windows-qml
+            build_preset: windows-qml-release
+            qt_arch: win64_msvc2022_64
+          - os: ubuntu-latest
+            preset: linux-qml
+            build_preset: linux-qml-release
+            qt_arch: linux_gcc_64
+          - os: ubuntu-latest
+            preset: linux-clang-qml
+            build_preset: linux-clang-qml-release
+            qt_arch: linux_gcc_64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          arch: ${{ matrix.qt_arch }}
+          cache: true
+
+      - name: Configure CMake
+        run: cmake --preset ${{ matrix.preset }}
+
+      - name: Build
+        run: cmake --build --preset ${{ matrix.build_preset }}
