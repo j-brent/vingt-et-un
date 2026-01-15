@@ -165,6 +165,12 @@
       "configurePreset": "linux-qml",
       "configuration": "Release",
       "inherits": "default"
+    },
+    {
+      "name": "linux-clang-qml-release",
+      "configurePreset": "linux-clang-qml",
+      "configuration": "Release",
+      "inherits": "default"
     }
   ],
   "packagePresets": [],

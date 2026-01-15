@@ -37,7 +37,7 @@ jobs:
           - os: ubuntu-latest
             preset: linux-clang-qml
             build_preset: linux-clang-qml-release
-            test_preset: linux-qml-release
+            test_preset: linux-clang-qml-release
             qt_arch: linux_gcc_64
 
     steps:
