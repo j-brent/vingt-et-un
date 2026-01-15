@@ -147,6 +147,24 @@
       "configurePreset": "linux",
       "configuration": "Debug",
       "inherits": "default"
+    },
+    {
+      "name": "windows-qml-release",
+      "configurePreset": "windows-qml",
+      "configuration": "Release",
+      "inherits": "default"
+    },
+    {
+      "name": "windows-qml-debug",
+      "configurePreset": "windows-qml",
+      "configuration": "Debug",
+      "inherits": "default"
+    },
+    {
+      "name": "linux-qml-release",
+      "configurePreset": "linux-qml",
+      "configuration": "Release",
+      "inherits": "default"
     }
   ],
   "packagePresets": [],
@@ -206,14 +224,16 @@
       "name": "windows-qml-release",
       "steps": [
         { "type": "configure", "name": "windows-qml" },
-        { "type": "build", "name": "windows-qml-release" }
+        { "type": "build", "name": "windows-qml-release" },
+        { "type": "test", "name": "windows-qml-release" }
       ]
     },
     {
       "name": "linux-qml-release",
       "steps": [
         { "type": "configure", "name": "linux-qml" },
-        { "type": "build", "name": "linux-qml-release" }
+        { "type": "build", "name": "linux-qml-release" },
+        { "type": "test", "name": "linux-qml-release" }
       ]
     },
     {

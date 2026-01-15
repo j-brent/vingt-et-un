@@ -27,14 +27,17 @@ jobs:
           - os: windows-latest
             preset: windows-qml
             build_preset: windows-qml-release
+            test_preset: windows-qml-release
             qt_arch: win64_msvc2022_64
           - os: ubuntu-latest
             preset: linux-qml
             build_preset: linux-qml-release
+            test_preset: linux-qml-release
             qt_arch: linux_gcc_64
           - os: ubuntu-latest
             preset: linux-clang-qml
             build_preset: linux-clang-qml-release
+            test_preset: linux-qml-release
             qt_arch: linux_gcc_64
 
     steps:
@@ -52,3 +55,8 @@ jobs:
 
       - name: Build
         run: cmake --build --preset ${{ matrix.build_preset }}
+
+      - name: Test
+        run: ctest --preset ${{ matrix.test_preset }}
+        env:
+          QT_QPA_PLATFORM: offscreen

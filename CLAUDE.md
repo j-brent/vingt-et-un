@@ -50,7 +50,9 @@ windeployqt --qmldir app/qml build-win-qml/Release/blackjack-qml.exe
 
 ## Testing
 
-Tests use Catch2 (fetched automatically via CMake).
+### Console Application Tests
+
+C++ tests use Catch2 (fetched automatically via CMake).
 
 ```sh
 # Run all tests
@@ -62,6 +64,30 @@ ctest --preset windows-release -R "Game states"
 # Full workflow (configure + build + test)
 cmake --workflow --preset windows-release
 ```
+
+### QML UI Tests
+
+QML tests use Qt Quick Test. Requires Qt 6.8+ with QuickTest component.
+
+```sh
+# Full workflow (configure + build + test)
+cmake --workflow --preset windows-qml-release
+
+# Run tests only (after build)
+ctest --preset windows-qml-release
+
+# Run only QML tests
+ctest --preset windows-qml-release -R "blackjack-qml"
+
+# Run only C++ tests in QML build
+ctest --preset windows-qml-release -R "Scenario"
+```
+
+**QML test files** (`app/qml/tests/`):
+- `tst_gamecontroller.qml` - GameController state machine and signals
+- `tst_cardview.qml` - Card display properties (suit colors, symbols, face-down)
+- `tst_handview.qml` - Hand population and card hiding
+- `tst_mainwindow.qml` - UI integration (button states, status messages, game flow)
 
 ## Architecture
 
