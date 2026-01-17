@@ -18,7 +18,7 @@ TestCase {
     // Buttons under test (no Deal button - auto-deals on start)
     Button {
         id: hitButton
-        text: "Hit"
+        text: "Hit me"
         enabled: game.canHit
         onClicked: game.hit()
     }

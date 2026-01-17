@@ -34,15 +34,29 @@ ApplicationWindow {
             spacing: Theme.em * 0.5
 
             Label {
-                text: "Dealer" + (game.isGameOver ? " (" + game.dealerScore + ")" : "")
+                text: "Dealer"
                 font.pixelSize: Theme.em * Theme.labelFontScale
                 font.family: Theme.uiFamily
                 color: Theme.textSecondary
             }
 
-            HandView {
-                cards: game.dealerHand
-                hideFirst: !game.isGameOver && game.gameState !== "ready"
+            RowLayout {
+                spacing: Theme.em
+
+                // Large score display (left of cards)
+                Text {
+                    text: game.isGameOver ? game.dealerScore : "?"
+                    font.pixelSize: Theme.cardHeight * 0.7
+                    font.family: Theme.cardFamily
+                    font.bold: true
+                    color: Theme.cardFace
+                    Layout.alignment: Qt.AlignVCenter
+                }
+
+                HandView {
+                    cards: game.dealerHand
+                    hideFirst: !game.isGameOver && game.gameState !== "ready"
+                }
             }
         }
 
@@ -68,15 +82,29 @@ ApplicationWindow {
             spacing: Theme.em * 0.5
 
             Label {
-                text: "Your Hand (" + game.playerScore + ")"
+                text: "Your Hand"
                 font.pixelSize: Theme.em * Theme.labelFontScale
                 font.family: Theme.uiFamily
                 color: Theme.textSecondary
             }
 
-            HandView {
-                cards: game.playerHand
-                hideFirst: false
+            RowLayout {
+                spacing: Theme.em
+
+                // Large score display (left of cards)
+                Text {
+                    text: game.playerScore
+                    font.pixelSize: Theme.cardHeight * 0.7
+                    font.family: Theme.cardFamily
+                    font.bold: true
+                    color: Theme.cardFace
+                    Layout.alignment: Qt.AlignVCenter
+                }
+
+                HandView {
+                    cards: game.playerHand
+                    hideFirst: false
+                }
             }
         }
     }
@@ -90,16 +118,14 @@ ApplicationWindow {
         spacing: Theme.buttonSpacing
 
         Button {
-            text: "Hit"
-            enabled: game.canHit
-            onClicked: game.hit()
+            text: "New Game"
+            visible: game.isGameOver
+            onClicked: { game.newGame(); game.deal() }
             implicitWidth: Theme.buttonWidth
             implicitHeight: Theme.buttonHeight
 
             background: Rectangle {
-                color: parent.enabled ?
-                       (parent.hovered ? Theme.buttonBgHover : Theme.buttonBg) :
-                       Theme.buttonBgDisabled
+                color: parent.hovered ? Theme.buttonBgHover : Theme.buttonBg
                 radius: Theme.buttonRadius
             }
 
@@ -107,7 +133,7 @@ ApplicationWindow {
                 text: parent.text
                 font.pixelSize: Theme.em * Theme.labelFontScale
                 font.family: Theme.uiFamily
-                color: parent.enabled ? Theme.buttonText : Theme.buttonTextDisabled
+                color: Theme.buttonText
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
             }
@@ -138,14 +164,16 @@ ApplicationWindow {
         }
 
         Button {
-            text: "New Game"
-            visible: game.isGameOver
-            onClicked: { game.newGame(); game.deal() }
+            text: "Hit me"
+            enabled: game.canHit
+            onClicked: game.hit()
             implicitWidth: Theme.buttonWidth
             implicitHeight: Theme.buttonHeight
 
             background: Rectangle {
-                color: parent.hovered ? Theme.buttonBgHover : Theme.buttonBg
+                color: parent.enabled ?
+                       (parent.hovered ? Theme.buttonBgHover : Theme.buttonBg) :
+                       Theme.buttonBgDisabled
                 radius: Theme.buttonRadius
             }
 
@@ -153,7 +181,7 @@ ApplicationWindow {
                 text: parent.text
                 font.pixelSize: Theme.em * Theme.labelFontScale
                 font.family: Theme.uiFamily
-                color: Theme.buttonText
+                color: parent.enabled ? Theme.buttonText : Theme.buttonTextDisabled
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
             }
