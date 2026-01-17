@@ -29,6 +29,35 @@
         "lhs": "${hostSystemName}",
         "rhs": "Linux"
       }
+    },
+    {
+      "name": "windows-qml",
+      "displayName": "Windows QML build",
+      "inherits": "windows",
+      "binaryDir": "${sourceDir}/build-win-qml",
+      "cacheVariables": {
+        "ENABLE_QML": "ON"
+      }
+    },
+    {
+      "name": "linux-qml",
+      "displayName": "Linux QML build with GCC",
+      "inherits": "linux",
+      "binaryDir": "${sourceDir}/build-linux-qml",
+      "cacheVariables": {
+        "ENABLE_QML": "ON"
+      }
+    },
+    {
+      "name": "linux-clang-qml",
+      "displayName": "Linux QML build with Clang",
+      "inherits": "linux",
+      "binaryDir": "${sourceDir}/build-linux-clang-qml",
+      "cacheVariables": {
+        "ENABLE_QML": "ON",
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
     }
   ],
   "buildPresets": [
@@ -50,6 +79,36 @@
     {
       "name": "linux-debug",
       "configurePreset": "linux",
+      "configuration": "Debug"
+    },
+    {
+      "name": "windows-qml-release",
+      "configurePreset": "windows-qml",
+      "configuration": "Release"
+    },
+    {
+      "name": "windows-qml-debug",
+      "configurePreset": "windows-qml",
+      "configuration": "Debug"
+    },
+    {
+      "name": "linux-qml-release",
+      "configurePreset": "linux-qml",
+      "configuration": "Release"
+    },
+    {
+      "name": "linux-qml-debug",
+      "configurePreset": "linux-qml",
+      "configuration": "Debug"
+    },
+    {
+      "name": "linux-clang-qml-release",
+      "configurePreset": "linux-clang-qml",
+      "configuration": "Release"
+    },
+    {
+      "name": "linux-clang-qml-debug",
+      "configurePreset": "linux-clang-qml",
       "configuration": "Debug"
     }
   ],
@@ -87,6 +146,30 @@
       "name": "linux-debug",
       "configurePreset": "linux",
       "configuration": "Debug",
+      "inherits": "default"
+    },
+    {
+      "name": "windows-qml-release",
+      "configurePreset": "windows-qml",
+      "configuration": "Release",
+      "inherits": "default"
+    },
+    {
+      "name": "windows-qml-debug",
+      "configurePreset": "windows-qml",
+      "configuration": "Debug",
+      "inherits": "default"
+    },
+    {
+      "name": "linux-qml-release",
+      "configurePreset": "linux-qml",
+      "configuration": "Release",
+      "inherits": "default"
+    },
+    {
+      "name": "linux-clang-qml-release",
+      "configurePreset": "linux-clang-qml",
+      "configuration": "Release",
       "inherits": "default"
     }
   ],
@@ -141,6 +224,29 @@
           "type": "test",
           "name": "linux-release"
         }
+      ]
+    },
+    {
+      "name": "windows-qml-release",
+      "steps": [
+        { "type": "configure", "name": "windows-qml" },
+        { "type": "build", "name": "windows-qml-release" },
+        { "type": "test", "name": "windows-qml-release" }
+      ]
+    },
+    {
+      "name": "linux-qml-release",
+      "steps": [
+        { "type": "configure", "name": "linux-qml" },
+        { "type": "build", "name": "linux-qml-release" },
+        { "type": "test", "name": "linux-qml-release" }
+      ]
+    },
+    {
+      "name": "linux-clang-qml-release",
+      "steps": [
+        { "type": "configure", "name": "linux-clang-qml" },
+        { "type": "build", "name": "linux-clang-qml-release" }
       ]
     }
   ]
