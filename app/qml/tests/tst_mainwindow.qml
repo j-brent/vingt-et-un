@@ -211,26 +211,31 @@ TestCase {
         }
         compare(game.isGameOver, true, "Precondition: game must be over")
 
-        // Step 2: Record state before clicking New Game
-        var wasGameOver = game.isGameOver
-        compare(wasGameOver, true, "Game should be over before New Game click")
+        // Step 2: Record hand sizes before clicking New Game
+        // (We can't compare card contents directly, but we can verify new cards were dealt)
+        var oldPlayerHandSize = game.playerHand.length
+        var oldDealerHandSize = game.dealerHand.length
 
         // Step 3: Click New Game button
         newGameButton.clicked()
         wait(100)
 
-        // Step 4: CRITICAL - Verify game is no longer over
-        // This is the assertion that catches the regression where deal() silently failed
-        compare(game.isGameOver, false, "Game must NOT be over after clicking New Game")
+        // Step 4: CRITICAL - Verify new cards were dealt
+        // This catches the regression where deal() silently failed
+        // Note: After new game, hands should have exactly 2 cards (fresh deal)
+        // If blackjack occurs, game ends immediately but cards are still dealt
+        compare(game.playerHand.length, 2, "Player should have exactly 2 cards after New Game")
+        compare(game.dealerHand.length, 2, "Dealer should have exactly 2 cards after New Game")
 
-        // Step 5: Verify we have a playable game state
-        verify(game.playerHand.length >= 2, "Player should have at least 2 cards after New Game")
-        verify(game.dealerHand.length >= 2, "Dealer should have at least 2 cards after New Game")
-
-        // Step 6: Verify player can take actions (unless blackjack ended game immediately)
+        // Step 5: Verify game state is valid (either playing or ended with blackjack)
         if (!game.isGameOver) {
+            // Normal case: player's turn
+            compare(game.gameState, "playersTurn", "Should be player's turn after New Game")
             compare(game.canHit, true, "Player should be able to Hit after New Game")
             compare(game.canStay, true, "Player should be able to Stay after New Game")
+        } else {
+            // Blackjack case: game ended immediately (valid outcome)
+            verify(game.resultMessage.length > 0, "Should have result message if game ended with blackjack")
         }
     }
 }
