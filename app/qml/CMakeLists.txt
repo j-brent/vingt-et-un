@@ -4,6 +4,8 @@ qt_add_library(blackjack-qml-lib STATIC
   GameController.cpp
 )
 
+set_source_files_properties(Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
+
 qt_add_qml_module(blackjack-qml-lib
   URI blackjack
   VERSION 1.0
@@ -11,6 +13,7 @@ qt_add_qml_module(blackjack-qml-lib
     Main.qml
     CardView.qml
     HandView.qml
+    Theme.qml
   RESOURCE_PREFIX /
 )
 
@@ -37,6 +40,7 @@ target_link_libraries(blackjack-qml
   PRIVATE
     blackjack-qml-lib
     blackjack-qml-libplugin
+    Qt6::QuickControls2
 )
 
 # QML Tests

@@ -1,11 +1,12 @@
 import QtQuick
 import QtQuick.Layouts
+import blackjack
 
 RowLayout {
     property var cards: []
     property bool hideFirst: false
 
-    spacing: 5
+    spacing: Theme.cardSpacing
 
     Repeater {
         model: cards

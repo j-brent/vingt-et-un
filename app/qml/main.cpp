@@ -1,8 +1,12 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QQuickStyle>
 
 int main(int argc, char *argv[])
 {
+    // Use Basic style to allow full button customization
+    QQuickStyle::setStyle("Basic");
+
     QGuiApplication app(argc, argv);
 
     QQmlApplicationEngine engine;

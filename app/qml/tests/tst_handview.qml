@@ -25,8 +25,8 @@ TestCase {
         compare(hand.hideFirst, false, "Default hideFirst should be false")
     }
 
-    function test_defaultSpacing() {
-        compare(hand.spacing, 5, "Default spacing should be 5")
+    function test_spacingMatchesTheme() {
+        compare(hand.spacing, Theme.cardSpacing, "Spacing should match Theme.cardSpacing")
     }
 
     // Card population tests

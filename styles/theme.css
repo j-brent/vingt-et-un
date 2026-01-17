@@ -1,0 +1,39 @@
+/* Auto-generated from styles/tokens.json - do not edit directly */
+/* Run: node scripts/generate-theme.js */
+
+:root {
+    /* Colors */
+    --color-background: #121212;
+    --color-card-face: #fffef0;
+    --color-card-back: #2060a0;
+    --color-suit-red: #cc0000;
+    --color-suit-black: #1a1a1a;
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #b0b0b0;
+    --color-button-bg: #333333;
+    --color-button-bg-hover: #444444;
+    --color-button-bg-disabled: #222222;
+    --color-button-text: #ffffff;
+    --color-button-text-disabled: #666666;
+    --color-border: #444444;
+
+    /* Sizes (em-based) */
+    --card-width: 8em;
+    --card-height: 11em;
+    --card-radius: 0.5em;
+    --card-spacing: 1em;
+    --card-border: 0.125em;
+    --button-width: 10em;
+    --button-height: 3em;
+    --button-radius: 0.375em;
+    --button-spacing: 1em;
+    --rank-font-scale: 4;
+    --suit-font-scale: 2.5;
+    --status-font-scale: 1.5;
+    --label-font-scale: 1.25;
+    --margin: 2em;
+
+    /* Fonts */
+    --font-card-family: Georgia, 'Times New Roman', serif;
+    --font-ui-family: system-ui, -apple-system, sans-serif;
+}

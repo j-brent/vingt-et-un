@@ -5,24 +5,40 @@ import blackjack
 
 ApplicationWindow {
     id: root
-    width: 600
-    height: 500
+    visibility: Window.FullScreen
     visible: true
     title: "Blackjack"
+    color: Theme.background
 
     GameController {
         id: game
     }
 
+    // Auto-deal when app starts
+    Component.onCompleted: {
+        game.deal()
+    }
+
+    // Game area (left side, fills available space)
     ColumnLayout {
-        anchors.fill: parent
-        anchors.margins: 20
-        spacing: 15
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.right: buttonPanel.left
+        anchors.margins: Theme.margin
+        spacing: Theme.margin
 
         // Dealer section
-        GroupBox {
-            title: "Dealer" + (game.isGameOver ? " (" + game.dealerScore + ")" : "")
+        ColumnLayout {
             Layout.fillWidth: true
+            spacing: Theme.em * 0.5
+
+            Label {
+                text: "Dealer" + (game.isGameOver ? " (" + game.dealerScore + ")" : "")
+                font.pixelSize: Theme.em * Theme.labelFontScale
+                font.family: Theme.uiFamily
+                color: Theme.textSecondary
+            }
 
             HandView {
                 cards: game.dealerHand
@@ -30,51 +46,123 @@ ApplicationWindow {
             }
         }
 
+        // Spacer
+        Item { Layout.fillHeight: true }
+
         // Status message
         Label {
-            text: game.isGameOver ? game.resultMessage :
-                  (game.gameState === "ready" ? "Press Deal to start" : "Your turn")
-            font.pixelSize: 18
+            text: game.isGameOver ? game.resultMessage : "Your turn"
+            font.pixelSize: Theme.em * Theme.statusFontScale
+            font.family: Theme.uiFamily
             font.bold: true
+            color: Theme.textPrimary
             Layout.alignment: Qt.AlignHCenter
         }
 
+        // Spacer
+        Item { Layout.fillHeight: true }
+
         // Player section
-        GroupBox {
-            title: "Your Hand (" + game.playerScore + ")"
+        ColumnLayout {
             Layout.fillWidth: true
+            spacing: Theme.em * 0.5
+
+            Label {
+                text: "Your Hand (" + game.playerScore + ")"
+                font.pixelSize: Theme.em * Theme.labelFontScale
+                font.family: Theme.uiFamily
+                color: Theme.textSecondary
+            }
 
             HandView {
                 cards: game.playerHand
                 hideFirst: false
             }
         }
+    }
 
-        // Action buttons
-        RowLayout {
-            Layout.alignment: Qt.AlignHCenter
-            spacing: 10
+    // Button panel (fixed to right side)
+    Column {
+        id: buttonPanel
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.rightMargin: Theme.margin
+        spacing: Theme.buttonSpacing
 
-            Button {
-                text: "Deal"
-                enabled: game.canDeal
-                onClicked: game.deal()
+        Button {
+            text: "Hit"
+            enabled: game.canHit
+            onClicked: game.hit()
+            implicitWidth: Theme.buttonWidth
+            implicitHeight: Theme.buttonHeight
+
+            background: Rectangle {
+                color: parent.enabled ?
+                       (parent.hovered ? Theme.buttonBgHover : Theme.buttonBg) :
+                       Theme.buttonBgDisabled
+                radius: Theme.buttonRadius
             }
-            Button {
-                text: "Hit"
-                enabled: game.canHit
-                onClicked: game.hit()
-            }
-            Button {
-                text: "Stay"
-                enabled: game.canStay
-                onClicked: game.stay()
-            }
-            Button {
-                text: "New Game"
-                enabled: game.isGameOver
-                onClicked: game.newGame()
+
+            contentItem: Text {
+                text: parent.text
+                font.pixelSize: Theme.em * Theme.labelFontScale
+                font.family: Theme.uiFamily
+                color: parent.enabled ? Theme.buttonText : Theme.buttonTextDisabled
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
             }
         }
+
+        Button {
+            text: "Stay"
+            enabled: game.canStay
+            onClicked: game.stay()
+            implicitWidth: Theme.buttonWidth
+            implicitHeight: Theme.buttonHeight
+
+            background: Rectangle {
+                color: parent.enabled ?
+                       (parent.hovered ? Theme.buttonBgHover : Theme.buttonBg) :
+                       Theme.buttonBgDisabled
+                radius: Theme.buttonRadius
+            }
+
+            contentItem: Text {
+                text: parent.text
+                font.pixelSize: Theme.em * Theme.labelFontScale
+                font.family: Theme.uiFamily
+                color: parent.enabled ? Theme.buttonText : Theme.buttonTextDisabled
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+            }
+        }
+
+        Button {
+            text: "New Game"
+            visible: game.isGameOver
+            onClicked: { game.newGame(); game.deal() }
+            implicitWidth: Theme.buttonWidth
+            implicitHeight: Theme.buttonHeight
+
+            background: Rectangle {
+                color: parent.hovered ? Theme.buttonBgHover : Theme.buttonBg
+                radius: Theme.buttonRadius
+            }
+
+            contentItem: Text {
+                text: parent.text
+                font.pixelSize: Theme.em * Theme.labelFontScale
+                font.family: Theme.uiFamily
+                color: Theme.buttonText
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+            }
+        }
+    }
+
+    // Escape key quits the application
+    Shortcut {
+        sequence: "Escape"
+        onActivated: Qt.quit()
     }
 }

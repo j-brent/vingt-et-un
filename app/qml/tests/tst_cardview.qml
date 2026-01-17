@@ -19,10 +19,10 @@ TestCase {
         verify(card !== null, "CardView should be created")
     }
 
-    // Dimension tests
-    function test_defaultDimensions() {
-        compare(card.width, 50, "Card width should be 50")
-        compare(card.height, 70, "Card height should be 70")
+    // Dimension tests - verify Theme-based sizing
+    function test_dimensionsMatchTheme() {
+        compare(card.width, Theme.cardWidth, "Card width should match Theme.cardWidth")
+        compare(card.height, Theme.cardHeight, "Card height should match Theme.cardHeight")
     }
 
     // Property tests
@@ -32,25 +32,25 @@ TestCase {
         compare(card.faceDown, false, "Default faceDown should be false")
     }
 
-    // Suit color tests
+    // Suit color tests - verify Theme colors
     function test_heartsSuitColor() {
         card.suit = "hearts"
-        compare(card.suitColor, "#ff0000", "Hearts should be red")
+        compare(card.suitColor, Theme.suitRed, "Hearts should use Theme.suitRed")
     }
 
     function test_diamondsSuitColor() {
         card.suit = "diamonds"
-        compare(card.suitColor, "#ff0000", "Diamonds should be red")
+        compare(card.suitColor, Theme.suitRed, "Diamonds should use Theme.suitRed")
     }
 
     function test_clubsSuitColor() {
         card.suit = "clubs"
-        compare(card.suitColor, "#000000", "Clubs should be black")
+        compare(card.suitColor, Theme.suitBlack, "Clubs should use Theme.suitBlack")
     }
 
     function test_spadesSuitColor() {
         card.suit = "spades"
-        compare(card.suitColor, "#000000", "Spades should be black")
+        compare(card.suitColor, Theme.suitBlack, "Spades should use Theme.suitBlack")
     }
 
     // Suit symbol tests
@@ -79,15 +79,15 @@ TestCase {
         compare(card.suitSymbol, "", "Unknown suit symbol should be empty")
     }
 
-    // Face-down tests
+    // Face-down tests - verify Theme colors
     function test_faceUpBackgroundColor() {
         card.faceDown = false
-        compare(card.color, "#ffffff", "Face-up card should be white")
+        compare(card.color, Theme.cardFace, "Face-up card should use Theme.cardFace")
     }
 
     function test_faceDownBackgroundColor() {
         card.faceDown = true
-        compare(card.color, "#2060a0", "Face-down card should be blue")
+        compare(card.color, Theme.cardBack, "Face-down card should use Theme.cardBack")
     }
 
     // Visual element tests (find children)

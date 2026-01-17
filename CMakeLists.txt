@@ -13,7 +13,7 @@ endif()
 
 option(ENABLE_QML "Build QML frontend" OFF)
 if(ENABLE_QML)
-  find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Qml)
+  find_package(Qt6 REQUIRED COMPONENTS Core Gui Quick Qml QuickControls2)
   qt_standard_project_setup()
   add_subdirectory(app/qml)
 endif()
