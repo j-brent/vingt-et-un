@@ -5,6 +5,7 @@ name: CMake on multiple platforms
 on:
   workflow_dispatch:
   push:
+    branches: ['**']
     paths:
       - 'src/**'
       - 'test/**'

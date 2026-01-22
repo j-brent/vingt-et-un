@@ -3,6 +3,7 @@ name: CMake QML build
 on:
   workflow_dispatch:
   push:
+    branches: ['**']
     paths:
       - 'src/**'
       - 'app/qml/**'
