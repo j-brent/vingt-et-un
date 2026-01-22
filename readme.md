@@ -66,3 +66,19 @@ src/           # Core game library (cardgames) and console app
 app/qml/       # QML GUI application
 test/          # Catch2 unit tests
 ```
+
+## Download
+
+Pre-built binaries are available at [Releases](https://github.com/j-brent/vingt-et-un/releases/).
+
+**Windows:**
+1. Download `blackjack-windows-x64.zip`
+2. Extract and run `blackjack-qml.exe`
+
+**Linux:**
+1. Download `blackjack-linux-x86_64.AppImage`
+2. Run:
+   ```sh
+   chmod +x blackjack-linux-x86_64.AppImage
+   ./blackjack-linux-x86_64.AppImage
+   ```
