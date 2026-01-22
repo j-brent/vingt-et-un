@@ -43,6 +43,12 @@ target_link_libraries(blackjack-qml
     Qt6::QuickControls2
 )
 
+# Install configuration for deployment
+install(TARGETS blackjack-qml
+  RUNTIME DESTINATION bin
+  BUNDLE DESTINATION .
+)
+
 # QML Tests
 if(ENABLE_TESTING)
   find_package(Qt6 REQUIRED COMPONENTS QuickTest)
