@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
+      - 'src/**'
       - 'app/qml/**'
       - 'CMakeLists.txt'
       - 'CMakePresets.json'
@@ -11,6 +12,7 @@ on:
   pull_request:
     branches: ["main"]
     paths:
+      - 'src/**'
       - 'app/qml/**'
       - 'CMakeLists.txt'
       - 'CMakePresets.json'
