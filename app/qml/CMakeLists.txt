@@ -29,6 +29,7 @@ target_link_libraries(blackjack-qml-lib
 target_include_directories(blackjack-qml-lib
   PUBLIC
     "${CMAKE_SOURCE_DIR}/src"
+    "${CMAKE_BINARY_DIR}/generated"
 )
 
 # Main executable

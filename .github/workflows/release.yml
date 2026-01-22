@@ -5,6 +5,9 @@ on:
     tags: ['v*']
   workflow_dispatch:
 
+env:
+  VERSION: ${{ github.ref_type == 'tag' && github.ref_name || '0.0.0-dev' }}
+
 jobs:
   build-windows:
     runs-on: windows-latest
@@ -37,13 +40,15 @@ jobs:
           windeployqt --qmldir app/qml --release deploy/blackjack-qml.exe
 
       - name: Create archive
-        run: Compress-Archive -Path deploy/* -DestinationPath blackjack-windows-x64.zip
+        run: |
+          $version = "${{ env.VERSION }}" -replace '^v', ''
+          Compress-Archive -Path deploy/* -DestinationPath "blackjack-qml-${version}-windows-x64.zip"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: blackjack-windows-x64
-          path: blackjack-windows-x64.zip
+          path: blackjack-qml-*-windows-x64.zip
 
   build-linux:
     runs-on: ubuntu-latest
@@ -93,13 +98,16 @@ jobs:
             --output appimage
 
       - name: Rename AppImage
-        run: mv Blackjack-*.AppImage blackjack-linux-x86_64.AppImage
+        run: |
+          version="${{ env.VERSION }}"
+          version="${version#v}"
+          mv Blackjack-*.AppImage "blackjack-qml-${version}-linux-x86_64.AppImage"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: blackjack-linux-x86_64
-          path: blackjack-linux-x86_64.AppImage
+          path: blackjack-qml-*-linux-x86_64.AppImage
 
   release:
     needs: [build-windows, build-linux]
@@ -120,10 +128,16 @@ jobs:
         with:
           name: blackjack-linux-x86_64
 
+      - name: Generate checksums
+        run: |
+          sha256sum blackjack-qml-* > checksums-sha256.txt
+          cat checksums-sha256.txt
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            blackjack-windows-x64.zip
-            blackjack-linux-x86_64.AppImage
+            blackjack-qml-*-windows-x64.zip
+            blackjack-qml-*-linux-x86_64.AppImage
+            checksums-sha256.txt
           generate_release_notes: true
