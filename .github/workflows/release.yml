@@ -86,7 +86,7 @@ jobs:
           export QML_SOURCES_PATHS=${{ github.workspace }}/app/qml
           ./linuxdeploy-x86_64.AppImage \
             --appdir AppDir \
-            --executable build-linux-qml/blackjack-qml \
+            --executable build-linux-qml/app/qml/blackjack-qml \
             --desktop-file .github/blackjack-qml.desktop \
             --icon-file .github/blackjack-qml.svg \
             --plugin qt \
