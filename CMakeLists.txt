@@ -1,6 +1,15 @@
 cmake_minimum_required(VERSION 3.23)
 
-project(vingt-et-un LANGUAGES CXX)
+project(vingt-et-un
+  VERSION 0.1.0
+  LANGUAGES CXX
+)
+
+# Generate version header
+configure_file(
+  "${CMAKE_SOURCE_DIR}/cmake/version.h.in"
+  "${CMAKE_BINARY_DIR}/generated/version.h"
+)
 
 add_subdirectory(src)
 

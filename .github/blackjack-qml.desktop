@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Blackjack
+Exec=blackjack-qml
+Icon=blackjack-qml
+Categories=Game;CardGame;

@@ -5,8 +5,21 @@ name: CMake on multiple platforms
 on:
   workflow_dispatch:
   push:
+    branches: ['**']
+    paths:
+      - 'src/**'
+      - 'test/**'
+      - 'CMakeLists.txt'
+      - 'CMakePresets.json'
+      - '.github/workflows/cmake-multi-platform.yml'
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
+    paths:
+      - 'src/**'
+      - 'test/**'
+      - 'CMakeLists.txt'
+      - 'CMakePresets.json'
+      - '.github/workflows/cmake-multi-platform.yml'
 
 jobs:
   build:

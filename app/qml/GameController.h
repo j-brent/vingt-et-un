@@ -6,11 +6,13 @@
 #include <QtQml/qqmlregistration.h>
 
 #include "blackjack-game.h"
+#include "version.h"
 
 class GameController : public QObject
 {
     Q_OBJECT
     QML_ELEMENT
+    Q_PROPERTY(QString version READ version CONSTANT)
     Q_PROPERTY(QString gameState READ gameState NOTIFY gameStateChanged)
     Q_PROPERTY(QVariantList playerHand READ playerHand NOTIFY handsChanged)
     Q_PROPERTY(QVariantList dealerHand READ dealerHand NOTIFY handsChanged)
@@ -25,6 +27,7 @@ class GameController : public QObject
 public:
     explicit GameController(QObject* parent = nullptr);
 
+    QString version() const { return VINGT_ET_UN_VERSION; }
     QString gameState() const;
     QVariantList playerHand() const;
     QVariantList dealerHand() const;

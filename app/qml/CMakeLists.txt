@@ -29,6 +29,7 @@ target_link_libraries(blackjack-qml-lib
 target_include_directories(blackjack-qml-lib
   PUBLIC
     "${CMAKE_SOURCE_DIR}/src"
+    "${CMAKE_BINARY_DIR}/generated"
 )
 
 # Main executable
@@ -41,6 +42,12 @@ target_link_libraries(blackjack-qml
     blackjack-qml-lib
     blackjack-qml-libplugin
     Qt6::QuickControls2
+)
+
+# Install configuration for deployment
+install(TARGETS blackjack-qml
+  RUNTIME DESTINATION bin
+  BUNDLE DESTINATION .
 )
 
 # QML Tests
