@@ -89,6 +89,10 @@ ctest --preset windows-qml-release -R "Scenario"
 - `tst_handview.qml` - Hand population and card hiding
 - `tst_mainwindow.qml` - UI integration (button states, status messages, game flow)
 
+## Test Documentation
+
+When any `test/*.cpp` file is added or modified, update `test/README.md` to reflect the changes. The README documents the test strategy per type with links to test files and line numbers. Ensure new scenarios are listed in the appropriate table, and line numbers stay accurate after edits.
+
 ## Git Commits
 
 Follow the Conventional Commits 1.0.0 specification when creating commit messages. See `.claude/skills/conventional-commit-msg.md` for format, types, and examples.

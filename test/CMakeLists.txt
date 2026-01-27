@@ -1,6 +1,8 @@
 add_executable(blackjack-tests
+  card_tests.cpp
   deck_tests.cpp
   game_tests.cpp
+  streaming_tests.cpp
 )
 
 target_link_libraries(blackjack-tests
