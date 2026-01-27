@@ -89,6 +89,10 @@ ctest --preset windows-qml-release -R "Scenario"
 - `tst_handview.qml` - Hand population and card hiding
 - `tst_mainwindow.qml` - UI integration (button states, status messages, game flow)
 
+## Git Commits
+
+Follow the Conventional Commits 1.0.0 specification when creating commit messages. See `.claude/skills/conventional-commit-msg.md` for format, types, and examples.
+
 ## Architecture
 
 C++ blackjack game with a `cardgames` static library, `blackjack` console executable, and optional `blackjack-qml` GUI.
@@ -111,3 +115,29 @@ C++ blackjack game with a `cardgames` static library, `blackjack` console execut
 - Game uses history-based state tracking (vector of GameState)
 - Player actions: `Deal`, `Hit`, `Stay`
 - Blackjack (21 on initial deal) immediately wins/loses - no PlayersRound
+
+## Reading Large PDFs
+
+When a PDF is too large to read (error about file size), split it into smaller chunks:
+
+1. Install pypdf: `pip install pypdf --quiet`
+2. Split the PDF into 40-page chunks using this Python script:
+   ```python
+   from pathlib import Path
+   from pypdf import PdfReader, PdfWriter
+
+   input_file = Path(r"path/to/large.pdf")
+   pages_per_chunk = 40
+
+   reader = PdfReader(input_file)
+   for start in range(0, len(reader.pages), pages_per_chunk):
+       end = min(start + pages_per_chunk, len(reader.pages))
+       writer = PdfWriter()
+       for page_num in range(start, end):
+           writer.add_page(reader.pages[page_num])
+       chunk_num = (start // pages_per_chunk) + 1
+       writer.write(input_file.parent / f"{input_file.stem}_part{chunk_num:02d}.pdf")
+   ```
+3. Read the split files individually
+
+This approach is documented in `.claude/skills/split-pdf.md` and should be used automatically when PDF reading fails
