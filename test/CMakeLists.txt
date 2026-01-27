@@ -1,4 +1,5 @@
 add_executable(blackjack-tests
+  card_tests.cpp
   deck_tests.cpp
   game_tests.cpp
 )
