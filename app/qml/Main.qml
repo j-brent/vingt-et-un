@@ -109,15 +109,17 @@ ApplicationWindow {
             }
 
             // Multiple hands display (split play)
-            ColumnLayout {
+            Column {
                 visible: game.handCount > 1
                 spacing: Theme.em * 0.5
 
                 Repeater {
                     model: game.playerHands
 
-                    RowLayout {
+                    // Each hand in a Row (not RowLayout - avoids overlap bug)
+                    Row {
                         spacing: Theme.em * 0.5
+                        height: Theme.cardHeight * 0.7 + Theme.em
 
                         // Hand indicator (number, active marker)
                         Rectangle {
@@ -127,6 +129,7 @@ ApplicationWindow {
                             color: modelData.isActive ? Theme.activeHandBg : "transparent"
                             border.color: modelData.isActive ? Theme.activeHandBorder : Theme.textSecondary
                             border.width: modelData.isActive ? 2 : 1
+                            anchors.verticalCenter: parent.verticalCenter
 
                             Text {
                                 anchors.centerIn: parent
@@ -138,33 +141,41 @@ ApplicationWindow {
                             }
                         }
 
-                        // Score display
+                        // Score display (large font with proper container width)
                         Text {
                             text: modelData.score
+                            width: Theme.em * 6
                             font.pixelSize: Theme.cardHeight * 0.5
                             font.family: Theme.cardFamily
                             font.bold: true
                             color: modelData.isBusted ? Theme.bustedText : Theme.cardFace
-                            Layout.alignment: Qt.AlignVCenter
-                            Layout.preferredWidth: Theme.em * 2.5
+                            anchors.verticalCenter: parent.verticalCenter
+                            horizontalAlignment: Text.AlignRight
                         }
 
                         // Status indicator
                         Text {
                             visible: modelData.isComplete
                             text: modelData.isBusted ? "BUST" : "DONE"
+                            width: visible ? Theme.em * 3.5 : 0
                             font.pixelSize: Theme.em * 0.8
                             font.family: Theme.uiFamily
                             font.bold: true
                             color: modelData.isBusted ? Theme.bustedText : Theme.completeText
-                            Layout.alignment: Qt.AlignVCenter
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+
+                        // Spacer when no status
+                        Item {
+                            visible: !modelData.isComplete
+                            width: Theme.em * 0.5
+                            height: 1
                         }
 
                         HandView {
                             cards: modelData.cards
                             hideFirst: false
-                            scale: 0.8
-                            transformOrigin: Item.Left
+                            anchors.verticalCenter: parent.verticalCenter
                         }
                     }
                 }
