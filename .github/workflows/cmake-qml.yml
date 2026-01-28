@@ -10,14 +10,6 @@ on:
       - 'CMakeLists.txt'
       - 'CMakePresets.json'
       - '.github/workflows/cmake-qml.yml'
-  pull_request:
-    branches: ["main"]
-    paths:
-      - 'src/**'
-      - 'app/qml/**'
-      - 'CMakeLists.txt'
-      - 'CMakePresets.json'
-      - '.github/workflows/cmake-qml.yml'
 
 jobs:
   build:
