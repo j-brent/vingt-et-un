@@ -36,6 +36,7 @@ QString GameController::gameState() const
     switch (m_game.state().node()) {
         case Node::Ready: return "ready";
         case Node::PlayersRound: return "playersTurn";
+        case Node::PlayersSplitRound: return "playersSplitTurn";
         case Node::DealersRound: return "dealersTurn";
         case Node::GameOverPlayerWins: return "playerWins";
         case Node::GameOverPlayerBusts: return "playerBusts";
@@ -81,12 +82,37 @@ bool GameController::canDeal() const
 
 bool GameController::canHit() const
 {
-    return m_game.state().node() == CardGames::BlackJack::GameNode::PlayersRound;
+    using Node = CardGames::BlackJack::GameNode;
+    auto node = m_game.state().node();
+    return node == Node::PlayersRound || node == Node::PlayersSplitRound;
 }
 
 bool GameController::canStay() const
 {
-    return m_game.state().node() == CardGames::BlackJack::GameNode::PlayersRound;
+    using Node = CardGames::BlackJack::GameNode;
+    auto node = m_game.state().node();
+    return node == Node::PlayersRound || node == Node::PlayersSplitRound;
+}
+
+bool GameController::canSplit() const
+{
+    return m_game.state().node() == CardGames::BlackJack::GameNode::PlayersRound &&
+           m_game.state().can_split();
+}
+
+bool GameController::isSplitRound() const
+{
+    return m_game.state().node() == CardGames::BlackJack::GameNode::PlayersSplitRound;
+}
+
+int GameController::handCount() const
+{
+    return static_cast<int>(m_game.state().player_hands().size());
+}
+
+int GameController::activeHandIndex() const
+{
+    return static_cast<int>(m_game.state().active_hand_index());
 }
 
 bool GameController::isGameOver() const
@@ -132,23 +158,18 @@ void GameController::hit()
 void GameController::stay()
 {
     if (!canStay()) return;
+    // Dealer auto-plays when player stays (or all split hands complete)
     m_game.next(CardGames::BlackJack::Game::Play::Stay);
+    emit handsChanged();
     emit gameStateChanged();
-    runDealerTurn();
 }
 
-void GameController::runDealerTurn()
+void GameController::split()
 {
-    using Node = CardGames::BlackJack::GameNode;
-    while (m_game.state().node() == Node::DealersRound) {
-        int dealerTotal = CardGames::BlackJack::add_em_up(m_game.state().dealers_hand());
-        auto play = (dealerTotal < 17)
-            ? CardGames::BlackJack::Game::Play::Hit
-            : CardGames::BlackJack::Game::Play::Stay;
-        m_game.next(play);
-        emit handsChanged();
-        emit gameStateChanged();
-    }
+    if (!canSplit()) return;
+    m_game.next(CardGames::BlackJack::Game::Play::Split);
+    emit handsChanged();
+    emit gameStateChanged();
 }
 
 void GameController::newGame()

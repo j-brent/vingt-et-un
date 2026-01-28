@@ -30,36 +30,34 @@ namespace blackjack_io
 		std::cout << line << std::endl;
 	}
 
-	CardGames::BlackJack::Game::Play get_move()
+	CardGames::BlackJack::Game::Play get_move(bool can_split)
 	{
-
 		auto user_input = 0;
 		auto user_input_is_valid = true;
 		do {
 			if (!user_input_is_valid) {
 				writeline("Invalid move: " + std::to_string(user_input));
 			}
-			writeline("Press 'h' to hit or 's' to stay.");
+			if (can_split) {
+				writeline("Press 'h' to hit, 's' to stay, or 'p' to split.");
+			} else {
+				writeline("Press 'h' to hit or 's' to stay.");
+			}
 			user_input = std::cin.get();
-      std::cin.get(); // flush out 'Enter'
-			user_input_is_valid = user_input == 'h' || user_input == 's';
+			std::cin.get(); // flush out 'Enter'
+			user_input_is_valid = user_input == 'h' || user_input == 's' ||
+			                      (can_split && user_input == 'p');
 		} while (!user_input_is_valid);
 
 		switch (user_input) {
 			case 'h': return CardGames::BlackJack::Game::Play::Hit;
 			case 's': return CardGames::BlackJack::Game::Play::Stay;
+			case 'p': return CardGames::BlackJack::Game::Play::Split;
 			default: {
 				std::cout << "Invalid move: " << user_input << "\nQuitting game.";
 				exit(1);
 			}
 		}
-	}
-
-	CardGames::BlackJack::Game::Play dealers_strategy(const std::vector<Card>& dealers_hand)
-	{
-		auto total = CardGames::BlackJack::add_em_up(dealers_hand);
-		return (total < 17) ? CardGames::BlackJack::Game::Play::Hit
-												: CardGames::BlackJack::Game::Play::Stay;
 	}
 
 	void print_all_cards_face_up(const CardGames::BlackJack::GameState& state)
@@ -84,6 +82,24 @@ namespace blackjack_io
 			std::cout << "Player: ";
 			print_hand(players_hand);
 			std::cout << "(" << CardGames::BlackJack::add_em_up(players_hand) << ")" << std::endl;
+		} else if (state.node() == GameNode::PlayersSplitRound) {
+			auto dealers_hand = state.dealers_hand();
+			std::cout << "Dealer: ";
+			print_hand_hide_some(dealers_hand, 1);
+			std::cout << "\nSplit hands:\n";
+			for (size_t i = 0; i < state.player_hands().size(); ++i) {
+				const auto& hand = state.player_hands()[i];
+				std::cout << "  Hand " << (i + 1);
+				if (i == state.active_hand_index()) {
+					std::cout << " (active)";
+				}
+				if (hand.is_complete()) {
+					std::cout << " [done]";
+				}
+				std::cout << ": ";
+				print_hand(hand.cards());
+				std::cout << "    (" << hand.total() << ")" << std::endl;
+			}
 		} else if (state.node() == GameNode::GameOverPlayerWins) {
 			print_all_cards_face_up(state);
 			const auto player = CardGames::BlackJack::add_em_up(state.players_hand());
@@ -124,18 +140,16 @@ void play_blackjack()
 
 	auto state = game.next(BlackJack::Game::Play::Deal);
 	blackjack_io::print_game_state(state);
-  
-	while (state.node() == BlackJack::GameNode::PlayersRound) {
-		const auto players_move = blackjack_io::get_move();
+
+	// Player's turn - handles both normal and split rounds
+	while (state.node() == BlackJack::GameNode::PlayersRound ||
+	       state.node() == BlackJack::GameNode::PlayersSplitRound) {
+		const auto can_split = state.can_split();
+		const auto players_move = blackjack_io::get_move(can_split);
 		state = game.next(players_move);
 		blackjack_io::print_game_state(state);
 	}
-
-  while (state.node() == BlackJack::GameNode::DealersRound) {
-    const auto dealers_move = blackjack_io::dealers_strategy(state.dealers_hand());
-    state = game.next(dealers_move);
-    blackjack_io::print_game_state(state);
-  }
+	// Note: Dealer auto-plays when player stays, so no dealer loop needed
 }
 
 #if 0
