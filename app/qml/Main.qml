@@ -14,8 +14,9 @@ ApplicationWindow {
         id: game
     }
 
-    // Auto-deal when app starts
+    // Auto-deal when app starts (supports --deck argument for deterministic testing)
     Component.onCompleted: {
+        game.newGame(initialDeckName)
         game.deal()
     }
 

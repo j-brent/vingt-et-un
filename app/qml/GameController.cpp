@@ -198,8 +198,17 @@ void GameController::split()
     emit gameStateChanged();
 }
 
-void GameController::newGame()
+void GameController::newGame(const QString& deckName)
 {
+    if (!deckName.isEmpty()) {
+        auto deck = CardGames::BlackJack::get_test_deck(deckName.toStdString());
+        if (deck) {
+            m_game = CardGames::BlackJack::Game{{.initial_deck = deck}};
+            emit handsChanged();
+            emit gameStateChanged();
+            return;
+        }
+    }
     m_game = CardGames::BlackJack::Game{};
     emit handsChanged();
     emit gameStateChanged();

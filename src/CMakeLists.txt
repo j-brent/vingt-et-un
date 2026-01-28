@@ -7,6 +7,8 @@ add_library(cardgames
   deck.cpp
   streaming.h
   streaming.cpp
+  test-decks.h
+  test-decks.cpp
 )
 target_include_directories(cardgames
   PUBLIC

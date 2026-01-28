@@ -1,10 +1,12 @@
 #include "blackjack-game.h"
 #include "streaming.h"
+#include "test-decks.h"
 
 #include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <numeric>
+#include <optional>
 #include <string>
 
 namespace blackjack_v0
@@ -132,11 +134,11 @@ namespace blackjack_io
 	}
 } // namespace blackjack_io
 
-void play_blackjack()
+void play_blackjack(CardGames::BlackJack::BlackjackConfig config = {})
 {
 	using namespace CardGames;
 
-	auto game = BlackJack::Game{};
+	auto game = BlackJack::Game{config};
 	blackjack_io::print_game_state(game.state());
 
 	auto state = game.next(BlackJack::Game::Play::Deal);
@@ -285,9 +287,30 @@ void play_blackjack_v0() {
 }
 #endif
 
-int main()
+int main(int argc, char* argv[])
 {
-	play_blackjack();
+	std::optional<std::string> deck_name;
+	for (int i = 1; i < argc; ++i) {
+		if (std::string(argv[i]) == "--deck" && i + 1 < argc) {
+			deck_name = argv[++i];
+		}
+	}
+
+	if (deck_name) {
+		auto deck = CardGames::BlackJack::get_test_deck(*deck_name);
+		if (!deck) {
+			std::cerr << "Unknown deck: " << *deck_name << "\nAvailable: ";
+			for (const auto& n : CardGames::BlackJack::get_test_deck_names()) {
+				std::cerr << n << " ";
+			}
+			std::cerr << "\n";
+			return 1;
+		}
+		play_blackjack({.initial_deck = deck});
+	} else {
+		play_blackjack();
+	}
+
 	std::cin.get();
 	return 0;
 }

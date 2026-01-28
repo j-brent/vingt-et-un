@@ -6,6 +6,7 @@
 #include <QtQml/qqmlregistration.h>
 
 #include "blackjack-game.h"
+#include "test-decks.h"
 #include "version.h"
 
 class GameController : public QObject
@@ -54,7 +55,7 @@ public slots:
     void hit();
     void stay();
     void split();
-    void newGame();
+    void newGame(const QString& deckName = QString{});
 
 signals:
     void gameStateChanged();

@@ -3,6 +3,8 @@
 #include "CompileTimeChecks.h"
 #include "deck.h"
 
+#include <optional>
+
 namespace CardGames
 {
 	namespace BlackJack
@@ -205,6 +207,7 @@ namespace CardGames
 		struct BlackjackConfig {
 			bool hit_soft_17 = true;         ///< If true, dealer hits on soft 17 (standard casino rule)
 			bool allow_resplit_aces = false; ///< If true, player can resplit aces (RSA); default is NRSA
+			std::optional<Deck> initial_deck = std::nullopt; ///< For deterministic testing
 		};
 
     class Game
@@ -212,7 +215,12 @@ namespace CardGames
     public:
     	enum class Play { Deal, Hit, Stay, Split };
 
-		explicit Game(BlackjackConfig config = {}) : m_config{config} {}
+		explicit Game(BlackjackConfig config = {})
+			: m_config{config}
+			, history{config.initial_deck
+				? std::vector<GameState>{GameState{GameNode::Ready, PlayersHand{}, DealersHand{}, *config.initial_deck}}
+				: std::vector<GameState>{GameState{}}}
+		{}
 
 		const GameState& next(Play play);
 		const GameState& state() const { return history.back(); }
@@ -222,8 +230,8 @@ namespace CardGames
 		/// Called after player stays; appends states to history until game over
 		void play_dealer_turn();
 
-		std::vector<GameState> history = {GameState{}};
 		BlackjackConfig m_config;
+		std::vector<GameState> history;
 	};
 
 	int add_em_up(const std::vector<Card>& hand);
