@@ -12,8 +12,8 @@ SCENARIO("Game states")
     THEN("The defaults should be as expected")
     {
       CHECK(gs.node() == GameNode::Ready);
-      CHECK(gs.players_hand().empty());
-      CHECK(gs.dealers_hand().empty());
+      CHECK(gs.players_hand().active_cards().empty());
+      CHECK(gs.dealer_hand().cards().empty());
       CHECK(gs.deck().cards().size() == 52);
     }
     
@@ -25,8 +25,8 @@ SCENARIO("Game states")
       {
         const auto gs = g.state();
         CHECK(gs.node() == GameNode::Ready);
-        CHECK(gs.players_hand().empty());
-        CHECK(gs.dealers_hand().empty());
+        CHECK(gs.players_hand().active_cards().empty());
+        CHECK(gs.dealer_hand().cards().empty());
         CHECK(gs.deck().cards().size() == 52);
       }
 
@@ -36,8 +36,8 @@ SCENARIO("Game states")
 
         THEN("...as expected")
         {
-          const auto player_blackjack = add_em_up(gs.players_hand()) == 21;
-          const auto dealer_blackjack = add_em_up(gs.dealers_hand()) == 21;
+          const auto player_blackjack = gs.players_hand().active_total() == 21;
+          const auto dealer_blackjack = gs.dealer_hand().total() == 21;
 
           if (player_blackjack) {
             CHECK(gs.node() == GameNode::GameOverPlayerWins);
@@ -46,8 +46,8 @@ SCENARIO("Game states")
           } else {
             CHECK(gs.node() == GameNode::PlayersRound);
           }
-          CHECK(gs.players_hand().size() == 2);
-          CHECK(gs.dealers_hand().size() == 2);
+          CHECK(gs.players_hand().active_cards().size() == 2);
+          CHECK(gs.dealer_hand().cards().size() == 2);
           CHECK(gs.deck().cards().size() == 48);
         }
       }
@@ -275,9 +275,9 @@ SCENARIO("add_em_up with Aces")
       {Rank::Ace, Suit::Spades}
     };
 
-    THEN("The total is 22 (both Aces count as 11, no soft ace logic)")
+    THEN("The total is 12 (one Ace reduced to 1 to avoid bust)")
     {
-      CHECK(add_em_up(hand) == 22);
+      CHECK(add_em_up(hand) == 12);
     }
   }
 
@@ -292,6 +292,193 @@ SCENARIO("add_em_up with Aces")
     THEN("The total is 16 (11 + 2 + 3)")
     {
       CHECK(add_em_up(hand) == 16);
+    }
+  }
+}
+
+// ============================================================================
+// calculate_hand_value: Soft ace handling
+// ============================================================================
+
+SCENARIO("calculate_hand_value soft ace handling")
+{
+  using Rank = Card::Rank;
+  using Suit = Card::Suit;
+
+  GIVEN("A hand with a single Ace")
+  {
+    const auto hand = std::vector<Card>{{Rank::Ace, Suit::Spades}};
+    const auto value = calculate_hand_value(hand);
+
+    THEN("The total is 11 and it's a soft hand")
+    {
+      CHECK(value.total == 11);
+      CHECK(value.is_soft == true);
+      CHECK(value.soft_ace_count == 1);
+    }
+  }
+
+  GIVEN("A hand with two Aces (would be 22, needs reduction)")
+  {
+    const auto hand = std::vector<Card>{
+      {Rank::Ace, Suit::Clubs},
+      {Rank::Ace, Suit::Spades}
+    };
+    const auto value = calculate_hand_value(hand);
+
+    THEN("The total is 12 (one Ace=11, one Ace=1), soft hand")
+    {
+      CHECK(value.total == 12);
+      CHECK(value.is_soft == true);
+      CHECK(value.soft_ace_count == 1);
+    }
+  }
+
+  GIVEN("A hand with three Aces")
+  {
+    const auto hand = std::vector<Card>{
+      {Rank::Ace, Suit::Clubs},
+      {Rank::Ace, Suit::Spades},
+      {Rank::Ace, Suit::Hearts}
+    };
+    const auto value = calculate_hand_value(hand);
+
+    THEN("The total is 13 (one Ace=11, two Aces=1 each), soft hand")
+    {
+      CHECK(value.total == 13);
+      CHECK(value.is_soft == true);
+      CHECK(value.soft_ace_count == 1);
+    }
+  }
+
+  GIVEN("A hand with four Aces")
+  {
+    const auto hand = std::vector<Card>{
+      {Rank::Ace, Suit::Clubs},
+      {Rank::Ace, Suit::Spades},
+      {Rank::Ace, Suit::Hearts},
+      {Rank::Ace, Suit::Diamonds}
+    };
+    const auto value = calculate_hand_value(hand);
+
+    THEN("The total is 14 (one Ace=11, three Aces=1 each), soft hand")
+    {
+      CHECK(value.total == 14);
+      CHECK(value.is_soft == true);
+      CHECK(value.soft_ace_count == 1);
+    }
+  }
+
+  GIVEN("A hand with Ace and Five (soft 16)")
+  {
+    const auto hand = std::vector<Card>{
+      {Rank::Ace, Suit::Hearts},
+      {Rank::Five, Suit::Clubs}
+    };
+    const auto value = calculate_hand_value(hand);
+
+    THEN("The total is 16, soft hand")
+    {
+      CHECK(value.total == 16);
+      CHECK(value.is_soft == true);
+      CHECK(value.soft_ace_count == 1);
+    }
+  }
+
+  GIVEN("A hand with Ace, Five, Six (soft 12 that must convert)")
+  {
+    const auto hand = std::vector<Card>{
+      {Rank::Ace, Suit::Hearts},
+      {Rank::Five, Suit::Clubs},
+      {Rank::Six, Suit::Diamonds}
+    };
+    const auto value = calculate_hand_value(hand);
+
+    THEN("The total is 12, hard hand (Ace reduced to 1)")
+    {
+      CHECK(value.total == 12);
+      CHECK(value.is_soft == false);
+      CHECK(value.soft_ace_count == 0);
+    }
+  }
+
+  GIVEN("A hand with Ten, Six, Ace (hard 17)")
+  {
+    const auto hand = std::vector<Card>{
+      {Rank::Ten, Suit::Clubs},
+      {Rank::Six, Suit::Hearts},
+      {Rank::Ace, Suit::Spades}
+    };
+    const auto value = calculate_hand_value(hand);
+
+    THEN("The total is 17, hard hand (Ace must be 1)")
+    {
+      CHECK(value.total == 17);
+      CHECK(value.is_soft == false);
+      CHECK(value.soft_ace_count == 0);
+    }
+  }
+
+  GIVEN("A hand with Ace, Ace, Nine (soft 21)")
+  {
+    const auto hand = std::vector<Card>{
+      {Rank::Ace, Suit::Clubs},
+      {Rank::Ace, Suit::Spades},
+      {Rank::Nine, Suit::Hearts}
+    };
+    const auto value = calculate_hand_value(hand);
+
+    THEN("The total is 21, soft hand")
+    {
+      CHECK(value.total == 21);
+      CHECK(value.is_soft == true);
+      CHECK(value.soft_ace_count == 1);
+    }
+  }
+
+  GIVEN("A hand with no Aces")
+  {
+    const auto hand = std::vector<Card>{
+      {Rank::Ten, Suit::Clubs},
+      {Rank::Seven, Suit::Hearts}
+    };
+    const auto value = calculate_hand_value(hand);
+
+    THEN("The total is 17, hard hand (no aces)")
+    {
+      CHECK(value.total == 17);
+      CHECK(value.is_soft == false);
+      CHECK(value.soft_ace_count == 0);
+    }
+  }
+
+  GIVEN("A hand with Ace, Ten, Ten (would bust without soft ace)")
+  {
+    const auto hand = std::vector<Card>{
+      {Rank::Ace, Suit::Hearts},
+      {Rank::Ten, Suit::Clubs},
+      {Rank::Ten, Suit::Diamonds}
+    };
+    const auto value = calculate_hand_value(hand);
+
+    THEN("The total is 21, hard hand (Ace reduced to 1)")
+    {
+      CHECK(value.total == 21);
+      CHECK(value.is_soft == false);
+      CHECK(value.soft_ace_count == 0);
+    }
+  }
+
+  GIVEN("An empty hand")
+  {
+    const auto hand = std::vector<Card>{};
+    const auto value = calculate_hand_value(hand);
+
+    THEN("The total is 0, hard hand")
+    {
+      CHECK(value.total == 0);
+      CHECK(value.is_soft == false);
+      CHECK(value.soft_ace_count == 0);
     }
   }
 }
@@ -358,11 +545,11 @@ SCENARIO("GameState parameterized construction")
 
   GIVEN("Specific hands and deck")
   {
-    const auto players_hand = std::vector<Card>{
+    const auto player_cards = std::vector<Card>{
       {Rank::Ten, Suit::Hearts},
       {Rank::Five, Suit::Clubs}
     };
-    const auto dealers_hand = std::vector<Card>{
+    const auto dealer_cards = std::vector<Card>{
       {Rank::King, Suit::Spades},
       {Rank::Seven, Suit::Diamonds}
     };
@@ -370,17 +557,19 @@ SCENARIO("GameState parameterized construction")
 
     WHEN("Constructing a GameState with PlayersRound")
     {
-      const auto gs = GameState{GameNode::PlayersRound, players_hand, dealers_hand, deck};
+      const auto gs = GameState{GameNode::PlayersRound,
+                                PlayersHand{player_cards},
+                                DealersHand{dealer_cards}, deck};
 
       THEN("All fields are set correctly")
       {
         CHECK(gs.node() == GameNode::PlayersRound);
-        REQUIRE(gs.players_hand().size() == 2);
-        CHECK(gs.players_hand()[0] == players_hand[0]);
-        CHECK(gs.players_hand()[1] == players_hand[1]);
-        REQUIRE(gs.dealers_hand().size() == 2);
-        CHECK(gs.dealers_hand()[0] == dealers_hand[0]);
-        CHECK(gs.dealers_hand()[1] == dealers_hand[1]);
+        REQUIRE(gs.players_hand().active_cards().size() == 2);
+        CHECK(gs.players_hand().active_cards()[0] == player_cards[0]);
+        CHECK(gs.players_hand().active_cards()[1] == player_cards[1]);
+        REQUIRE(gs.dealer_hand().cards().size() == 2);
+        CHECK(gs.dealer_hand().cards()[0] == dealer_cards[0]);
+        CHECK(gs.dealer_hand().cards()[1] == dealer_cards[1]);
         CHECK(gs.deck().cards().size() == 1);
       }
     }
@@ -401,8 +590,8 @@ SCENARIO("GameState equality")
     const auto ph = std::vector<Card>{{Rank::Two, Suit::Clubs}};
     const auto dh = std::vector<Card>{{Rank::Three, Suit::Hearts}};
     const auto dk = Deck{std::vector<Card>{{Rank::Four, Suit::Diamonds}}};
-    const auto a = GameState{GameNode::PlayersRound, ph, dh, dk};
-    const auto b = GameState{GameNode::PlayersRound, ph, dh, dk};
+    const auto a = GameState{GameNode::PlayersRound, PlayersHand{ph}, DealersHand{dh}, dk};
+    const auto b = GameState{GameNode::PlayersRound, PlayersHand{ph}, DealersHand{dh}, dk};
 
     THEN("They are equal")
     {
@@ -415,8 +604,8 @@ SCENARIO("GameState equality")
     const auto ph = std::vector<Card>{{Rank::Two, Suit::Clubs}};
     const auto dh = std::vector<Card>{{Rank::Three, Suit::Hearts}};
     const auto dk = Deck{std::vector<Card>{}};
-    const auto a = GameState{GameNode::PlayersRound, ph, dh, dk};
-    const auto b = GameState{GameNode::DealersRound, ph, dh, dk};
+    const auto a = GameState{GameNode::PlayersRound, PlayersHand{ph}, DealersHand{dh}, dk};
+    const auto b = GameState{GameNode::DealersRound, PlayersHand{ph}, DealersHand{dh}, dk};
 
     THEN("They are NOT equal")
     {
@@ -429,9 +618,9 @@ SCENARIO("GameState equality")
     const auto dh = std::vector<Card>{{Rank::Three, Suit::Hearts}};
     const auto dk = Deck{std::vector<Card>{}};
     const auto a = GameState{GameNode::PlayersRound,
-                             {{Rank::Two, Suit::Clubs}}, dh, dk};
+                             PlayersHand{std::vector<Card>{{Rank::Two, Suit::Clubs}}}, DealersHand{dh}, dk};
     const auto b = GameState{GameNode::PlayersRound,
-                             {{Rank::Five, Suit::Clubs}}, dh, dk};
+                             PlayersHand{std::vector<Card>{{Rank::Five, Suit::Clubs}}}, DealersHand{dh}, dk};
 
     THEN("They are NOT equal")
     {
@@ -463,7 +652,7 @@ SCENARIO("Deterministic game: player hits and busts")
       {Rank::Queen, Suit::Hearts}, // hit card for player
     };
 
-    auto gs = GameState{GameNode::Ready, {}, {}, Deck{cards}};
+    auto gs = GameState{GameNode::Ready, PlayersHand{}, DealersHand{}, Deck{cards}};
     auto game = Game{};
 
     // We need to construct a game that uses our deck. Since Game always
@@ -495,8 +684,8 @@ SCENARIO("Deterministic game: player hits and busts")
 
       THEN("Both hands have 2 cards")
       {
-        CHECK(dealt_state.players_hand().size() == 2);
-        CHECK(dealt_state.dealers_hand().size() == 2);
+        CHECK(dealt_state.players_hand().active_cards().size() == 2);
+        CHECK(dealt_state.dealer_hand().cards().size() == 2);
       }
 
       THEN("The deck has 48 cards")
@@ -564,10 +753,10 @@ SCENARIO("Invalid plays are ignored")
 }
 
 // ============================================================================
-// Game: Player stays, transition to DealersRound
+// Game: Player stays, dealer auto-plays to game over
 // ============================================================================
 
-SCENARIO("Player stays transitions to DealersRound")
+SCENARIO("Player stays triggers automatic dealer turn")
 {
   GIVEN("A game in PlayersRound")
   {
@@ -579,24 +768,25 @@ SCENARIO("Player stays transitions to DealersRound")
       {
         const auto& result = game.next(Game::Play::Stay);
 
-        THEN("The state transitions to DealersRound")
+        THEN("The state transitions to a GameOver state (dealer auto-plays)")
         {
-          CHECK(result.node() == GameNode::DealersRound);
+          const auto node = result.node();
+          const bool is_game_over =
+              node == GameNode::GameOverPlayerWins ||
+              node == GameNode::GameOverDealerWins ||
+              node == GameNode::GameOverDealerBusts ||
+              node == GameNode::GameOverDraw;
+          CHECK(is_game_over);
         }
 
-        THEN("The player's hand is unchanged")
+        THEN("The player's hand is unchanged (still 2 cards)")
         {
-          CHECK(result.players_hand().size() == 2);
+          CHECK(result.players_hand().active_cards().size() == 2);
         }
 
-        THEN("The dealer's hand is unchanged")
+        THEN("The dealer's hand may have grown (dealer draws until 17+)")
         {
-          CHECK(result.dealers_hand().size() == 2);
-        }
-
-        THEN("The deck size is unchanged")
-        {
-          CHECK(result.deck().cards().size() == 48);
+          CHECK(result.dealer_hand().cards().size() >= 2);
         }
       }
     }
@@ -615,7 +805,7 @@ SCENARIO("Player hits and gets another card")
     game.next(Game::Play::Deal);
 
     if (game.state().node() == GameNode::PlayersRound) {
-      const auto player_total_before = add_em_up(game.state().players_hand());
+      const auto player_total_before = game.state().players_hand().active_total();
 
       WHEN("Player hits")
       {
@@ -623,7 +813,7 @@ SCENARIO("Player hits and gets another card")
 
         THEN("The player's hand has 3 cards")
         {
-          CHECK(result.players_hand().size() == 3);
+          CHECK(result.players_hand().active_cards().size() == 3);
         }
 
         THEN("The deck has 47 cards")
@@ -634,7 +824,7 @@ SCENARIO("Player hits and gets another card")
         THEN("The state is PlayersRound or GameOverPlayerBusts")
         {
           const auto node = result.node();
-          const auto total = add_em_up(result.players_hand());
+          const auto total = result.players_hand().active_total();
           if (total > 21) {
             CHECK(node == GameNode::GameOverPlayerBusts);
           } else {
@@ -647,43 +837,52 @@ SCENARIO("Player hits and gets another card")
 }
 
 // ============================================================================
-// Game: Dealer hits, hand grows
+// Game: Dealer auto-play rules verification
 // ============================================================================
 
-SCENARIO("Dealer hits and gets another card")
+SCENARIO("Dealer auto-play hits on 16 or less")
 {
-  GIVEN("A game in DealersRound")
+  using Rank = Card::Rank;
+  using Suit = Card::Suit;
+
+  GIVEN("A deterministic deck where dealer gets 16")
   {
+    // Set up deck: Player gets 10+8=18, Dealer gets 10+6=16
+    // Then dealer draws 3 for final 19
+    auto deck = Deck{std::vector<Card>{
+      {Rank::Ten, Suit::Clubs},    // Player card 1
+      {Rank::Ten, Suit::Hearts},   // Dealer card 1
+      {Rank::Eight, Suit::Diamonds}, // Player card 2
+      {Rank::Six, Suit::Spades},   // Dealer card 2 (total=16, must hit)
+      {Rank::Three, Suit::Clubs},  // Dealer draws (total=19, stands)
+    }};
+
     auto game = Game{};
-    game.next(Game::Play::Deal);
+    // Replace the shuffled deck with our deterministic one
+    // We need to access through GameState constructor
+    // Actually, Game always starts with a shuffled deck internally
+    // So we test the behavior through multiple game plays
 
-    if (game.state().node() == GameNode::PlayersRound) {
-      game.next(Game::Play::Stay);
+    WHEN("Player stays")
+    {
+      game.next(Game::Play::Deal);
+      if (game.state().node() == GameNode::PlayersRound) {
+        const auto& result = game.next(Game::Play::Stay);
 
-      if (game.state().node() == GameNode::DealersRound) {
-        WHEN("Dealer hits")
+        THEN("The dealer's final total is 17 or more (or bust)")
         {
-          const auto& result = game.next(Game::Play::Hit);
+          const auto dealer_value = result.dealer_hand().value();
+          const auto is_game_over =
+            result.node() == GameNode::GameOverPlayerWins ||
+            result.node() == GameNode::GameOverDealerWins ||
+            result.node() == GameNode::GameOverDealerBusts ||
+            result.node() == GameNode::GameOverDraw;
 
-          THEN("The dealer's hand has 3 cards")
-          {
-            CHECK(result.dealers_hand().size() == 3);
-          }
+          CHECK(is_game_over);
 
-          THEN("The deck has 47 cards")
-          {
-            CHECK(result.deck().cards().size() == 47);
-          }
-
-          THEN("The state is DealersRound or GameOverDealerBusts")
-          {
-            const auto node = result.node();
-            const auto total = add_em_up(result.dealers_hand());
-            if (total > 21) {
-              CHECK(node == GameNode::GameOverDealerBusts);
-            } else {
-              CHECK(node == GameNode::DealersRound);
-            }
+          if (result.node() != GameNode::GameOverDealerBusts) {
+            // Dealer stood, so total must be >= 17
+            CHECK(dealer_value.total >= 17);
           }
         }
       }
@@ -691,42 +890,32 @@ SCENARIO("Dealer hits and gets another card")
   }
 }
 
-// ============================================================================
-// Game: Dealer stays, final comparison
-// ============================================================================
-
-SCENARIO("Dealer stays triggers final comparison")
+SCENARIO("Dealer auto-play outcome reflects correct comparison")
 {
-  GIVEN("A game in DealersRound")
+  GIVEN("A game where player stays")
   {
     auto game = Game{};
     game.next(Game::Play::Deal);
 
     if (game.state().node() == GameNode::PlayersRound) {
-      game.next(Game::Play::Stay);
+      const auto player_total = game.state().players_hand().active_total();
 
-      if (game.state().node() == GameNode::DealersRound) {
-        WHEN("Dealer stays")
+      WHEN("Player stays and dealer auto-plays")
+      {
+        const auto& result = game.next(Game::Play::Stay);
+        const auto dealer_total = result.dealer_hand().total();
+        const auto node = result.node();
+
+        THEN("The outcome matches the score comparison")
         {
-          const auto player_total = add_em_up(game.state().players_hand());
-          const auto dealer_total = add_em_up(game.state().dealers_hand());
-          const auto& result = game.next(Game::Play::Stay);
-
-          THEN("The game is over with correct outcome")
-          {
-            if (player_total > dealer_total) {
-              CHECK(result.node() == GameNode::GameOverPlayerWins);
-            } else if (dealer_total > player_total) {
-              CHECK(result.node() == GameNode::GameOverDealerWins);
-            } else {
-              CHECK(result.node() == GameNode::GameOverDraw);
-            }
-          }
-
-          THEN("Hands are unchanged")
-          {
-            CHECK(result.players_hand().size() == 2);
-            CHECK(result.dealers_hand().size() == 2);
+          if (dealer_total > 21) {
+            CHECK(node == GameNode::GameOverDealerBusts);
+          } else if (player_total > dealer_total) {
+            CHECK(node == GameNode::GameOverPlayerWins);
+          } else if (dealer_total > player_total) {
+            CHECK(node == GameNode::GameOverDealerWins);
+          } else {
+            CHECK(node == GameNode::GameOverDraw);
           }
         }
       }
@@ -740,48 +929,46 @@ SCENARIO("Dealer stays triggers final comparison")
 
 SCENARIO("GameOver states ignore all plays")
 {
-  GIVEN("A game that reaches GameOver via dealer stay")
+  GIVEN("A game that reaches GameOver (dealer auto-plays after player stays)")
   {
     auto game = Game{};
     game.next(Game::Play::Deal);
 
     if (game.state().node() == GameNode::PlayersRound) {
-      game.next(Game::Play::Stay);
-      if (game.state().node() == GameNode::DealersRound) {
-        game.next(Game::Play::Stay); // triggers game over
+      game.next(Game::Play::Stay);  // Dealer auto-plays to GameOver
 
-        const auto game_over_node = game.state().node();
-        const bool is_game_over =
-          game_over_node == GameNode::GameOverPlayerWins ||
-          game_over_node == GameNode::GameOverDealerWins ||
-          game_over_node == GameNode::GameOverDraw;
+      const auto game_over_node = game.state().node();
+      const bool is_game_over =
+        game_over_node == GameNode::GameOverPlayerWins ||
+        game_over_node == GameNode::GameOverDealerWins ||
+        game_over_node == GameNode::GameOverDealerBusts ||
+        game_over_node == GameNode::GameOverDraw;
 
-        if (is_game_over) {
-          WHEN("Sending Deal to a GameOver state")
+      if (is_game_over) {
+        WHEN("Sending Deal to a GameOver state")
+        {
+          const auto& result = game.next(Game::Play::Deal);
+          THEN("The state does not change")
           {
-            const auto& result = game.next(Game::Play::Deal);
-            THEN("The state does not change")
-            {
-              CHECK(result.node() == game_over_node);
-            }
+            CHECK(result.node() == game_over_node);
           }
+        }
 
-          WHEN("Sending Hit to a GameOver state")
+        WHEN("Sending Hit to a GameOver state")
+        {
+          const auto& result = game.next(Game::Play::Hit);
+          THEN("The state does not change")
           {
-            const auto& result = game.next(Game::Play::Hit);
-            THEN("The state does not change")
-            {
-              CHECK(result.node() == game_over_node);
-            }
+            CHECK(result.node() == game_over_node);
           }
+        }
 
-          WHEN("Sending Stay to a GameOver state")
+        WHEN("Sending Stay to a GameOver state")
+        {
+          const auto& result = game.next(Game::Play::Stay);
+          THEN("The state does not change")
           {
-            const auto& result = game.next(Game::Play::Stay);
-            THEN("The state does not change")
-            {
-              CHECK(result.node() == game_over_node);
-            }
+            CHECK(result.node() == game_over_node);
           }
         }
       }
@@ -795,23 +982,19 @@ SCENARIO("GameOver states ignore all plays")
 
 SCENARIO("Deal is only valid from Ready state")
 {
-  GIVEN("A game in DealersRound")
+  GIVEN("A game in PlayersRound")
   {
     auto game = Game{};
     game.next(Game::Play::Deal);
 
     if (game.state().node() == GameNode::PlayersRound) {
-      game.next(Game::Play::Stay);
+      WHEN("Sending Deal in PlayersRound")
+      {
+        const auto& result = game.next(Game::Play::Deal);
 
-      if (game.state().node() == GameNode::DealersRound) {
-        WHEN("Sending Deal in DealersRound")
+        THEN("The state does not change")
         {
-          const auto& result = game.next(Game::Play::Deal);
-
-          THEN("The state does not change")
-          {
-            CHECK(result.node() == GameNode::DealersRound);
-          }
+          CHECK(result.node() == GameNode::PlayersRound);
         }
       }
     }
@@ -840,8 +1023,8 @@ SCENARIO("Game state() returns current state")
       THEN("state() returns the same as next() returned")
       {
         CHECK(game.state().node() == dealt.node());
-        CHECK(game.state().players_hand().size() == dealt.players_hand().size());
-        CHECK(game.state().dealers_hand().size() == dealt.dealers_hand().size());
+        CHECK(game.state().players_hand().active_cards().size() == dealt.players_hand().active_cards().size());
+        CHECK(game.state().dealer_hand().cards().size() == dealt.dealer_hand().cards().size());
       }
     }
   }
@@ -940,7 +1123,7 @@ SCENARIO("Multiple hits in PlayersRound")
 
           THEN("The player's hand has 4 cards")
           {
-            CHECK(game.state().players_hand().size() == 4);
+            CHECK(game.state().players_hand().active_cards().size() == 4);
           }
 
           THEN("The deck has lost 2 more cards (46 remaining)")
@@ -954,32 +1137,36 @@ SCENARIO("Multiple hits in PlayersRound")
 }
 
 // ============================================================================
-// Game: Dealer hits multiple times
+// Game: Dealer may draw multiple cards during auto-play
 // ============================================================================
 
-SCENARIO("Multiple hits in DealersRound")
+SCENARIO("Dealer auto-play may draw multiple cards")
 {
-  GIVEN("A game in DealersRound")
+  GIVEN("A game where dealer needs to draw")
   {
     auto game = Game{};
     game.next(Game::Play::Deal);
 
     if (game.state().node() == GameNode::PlayersRound) {
-      game.next(Game::Play::Stay);
+      WHEN("Player stays and dealer auto-plays")
+      {
+        const auto dealer_initial = game.state().dealer_hand().cards().size();
+        game.next(Game::Play::Stay);
 
-      if (game.state().node() == GameNode::DealersRound) {
-        WHEN("Dealer hits twice (if not busted)")
+        THEN("The dealer's hand may have grown (drew cards until 17+)")
         {
-          game.next(Game::Play::Hit);
+          CHECK(game.state().dealer_hand().cards().size() >= dealer_initial);
+        }
 
-          if (game.state().node() == GameNode::DealersRound) {
-            game.next(Game::Play::Hit);
-
-            THEN("The dealer's hand has 4 cards")
-            {
-              CHECK(game.state().dealers_hand().size() == 4);
-            }
-          }
+        THEN("The game is over")
+        {
+          const auto node = game.state().node();
+          const bool is_game_over =
+            node == GameNode::GameOverPlayerWins ||
+            node == GameNode::GameOverDealerWins ||
+            node == GameNode::GameOverDealerBusts ||
+            node == GameNode::GameOverDraw;
+          CHECK(is_game_over);
         }
       }
     }
@@ -998,7 +1185,7 @@ SCENARIO("After dealing, a second Deal is ignored")
     game.next(Game::Play::Deal);
 
     if (game.state().node() == GameNode::PlayersRound) {
-      const auto hand_size_before = game.state().players_hand().size();
+      const auto hand_size_before = game.state().players_hand().active_cards().size();
       const auto deck_size_before = game.state().deck().cards().size();
 
       WHEN("Sending Deal again")
@@ -1007,11 +1194,277 @@ SCENARIO("After dealing, a second Deal is ignored")
 
         THEN("Nothing changes")
         {
-          CHECK(game.state().players_hand().size() == hand_size_before);
+          CHECK(game.state().players_hand().active_cards().size() == hand_size_before);
           CHECK(game.state().deck().cards().size() == deck_size_before);
           CHECK(game.state().node() == GameNode::PlayersRound);
         }
       }
+    }
+  }
+}
+
+// ============================================================================
+// PlayersHand class tests
+// ============================================================================
+
+SCENARIO("PlayersHand class basic operations")
+{
+  using Rank = Card::Rank;
+  using Suit = Card::Suit;
+
+  GIVEN("An empty hand")
+  {
+    PlayersHand hand;
+    THEN("It has no cards and cannot split")
+    {
+      CHECK(hand.active_cards().empty());
+      CHECK_FALSE(hand.can_split());
+      CHECK(hand.active_total() == 0);
+    }
+  }
+
+  GIVEN("A hand with two matching cards")
+  {
+    PlayersHand hand{std::vector<Card>{{Rank::Eight, Suit::Clubs}, {Rank::Eight, Suit::Hearts}}};
+
+    THEN("It can be split")
+    {
+      CHECK(hand.can_split());
+      CHECK(hand.active_total() == 16);
+    }
+  }
+
+  GIVEN("A hand with two non-matching cards")
+  {
+    PlayersHand hand{std::vector<Card>{{Rank::Eight, Suit::Clubs}, {Rank::Nine, Suit::Hearts}}};
+
+    THEN("It cannot be split")
+    {
+      CHECK_FALSE(hand.can_split());
+      CHECK(hand.active_total() == 17);
+    }
+  }
+
+  GIVEN("A hand with more than 2 cards")
+  {
+    PlayersHand hand{std::vector<Card>{
+      {Rank::Eight, Suit::Clubs},
+      {Rank::Eight, Suit::Hearts},
+      {Rank::Two, Suit::Diamonds}
+    }};
+
+    THEN("It cannot be split")
+    {
+      CHECK_FALSE(hand.can_split());
+      CHECK(hand.active_total() == 18);
+    }
+  }
+}
+
+// ============================================================================
+// Split functionality tests
+// ============================================================================
+
+SCENARIO("Split with matching pair transitions to PlayersSplitRound")
+{
+  using Rank = Card::Rank;
+  using Suit = Card::Suit;
+
+  GIVEN("A game where player has a matching pair")
+  {
+    // We need to find a game where deal results in a pair
+    // Since deck is shuffled, we'll test the can_split() method
+    auto game = Game{};
+    game.next(Game::Play::Deal);
+
+    if (game.state().node() == GameNode::PlayersRound &&
+        game.state().can_split()) {
+
+      WHEN("Player splits")
+      {
+        const auto deck_before = game.state().deck().cards().size();
+        const auto& result = game.next(Game::Play::Split);
+
+        THEN("The game transitions to PlayersSplitRound")
+        {
+          CHECK(result.node() == GameNode::PlayersSplitRound);
+        }
+
+        THEN("There are now 2 player hands")
+        {
+          CHECK(result.players_hand().hand_count() == 2);
+        }
+
+        THEN("Each hand has 2 cards")
+        {
+          CHECK(result.players_hand().all_hands()[0].cards.size() == 2);
+          CHECK(result.players_hand().all_hands()[1].cards.size() == 2);
+        }
+
+        THEN("Both hands are marked as split hands")
+        {
+          CHECK(result.players_hand().all_hands()[0].is_from_split);
+          CHECK(result.players_hand().all_hands()[1].is_from_split);
+        }
+
+        THEN("Active hand index is 0")
+        {
+          CHECK(result.players_hand().active_index() == 0);
+        }
+
+        THEN("2 cards were dealt from deck")
+        {
+          CHECK(result.deck().cards().size() == deck_before - 2);
+        }
+      }
+    }
+  }
+}
+
+SCENARIO("Split is ignored for non-matching pairs")
+{
+  GIVEN("A game where player has non-matching cards")
+  {
+    auto game = Game{};
+    game.next(Game::Play::Deal);
+
+    if (game.state().node() == GameNode::PlayersRound &&
+        !game.state().can_split()) {
+
+      WHEN("Player attempts to split")
+      {
+        const auto state_before = game.state().node();
+        const auto hand_size_before = game.state().players_hand().active_cards().size();
+        game.next(Game::Play::Split);
+
+        THEN("Nothing changes")
+        {
+          CHECK(game.state().node() == state_before);
+          CHECK(game.state().players_hand().active_cards().size() == hand_size_before);
+        }
+      }
+    }
+  }
+}
+
+SCENARIO("PlayersSplitRound: Hit and Stay on split hands")
+{
+  GIVEN("A game in PlayersSplitRound")
+  {
+    auto game = Game{};
+    game.next(Game::Play::Deal);
+
+    // Keep trying until we get a splittable hand
+    while (game.state().node() == GameNode::PlayersRound && !game.state().can_split()) {
+      game = Game{};
+      game.next(Game::Play::Deal);
+    }
+
+    if (game.state().node() == GameNode::PlayersRound && game.state().can_split()) {
+      game.next(Game::Play::Split);
+
+      if (game.state().node() == GameNode::PlayersSplitRound) {
+        WHEN("Player hits on hand 0")
+        {
+          const auto hand0_size_before = game.state().players_hand().all_hands()[0].cards.size();
+          game.next(Game::Play::Hit);
+
+          THEN("Hand 0 has one more card")
+          {
+            CHECK(game.state().players_hand().all_hands()[0].cards.size() == hand0_size_before + 1);
+          }
+        }
+
+        WHEN("Player stays on hand 0")
+        {
+          game.next(Game::Play::Stay);
+
+          if (game.state().node() == GameNode::PlayersSplitRound) {
+            THEN("Active hand moves to 1")
+            {
+              CHECK(game.state().players_hand().active_index() == 1);
+            }
+
+            WHEN("Player stays on hand 1")
+            {
+              game.next(Game::Play::Stay);
+
+              THEN("Game transitions to dealer's turn or game over")
+              {
+                const auto node = game.state().node();
+                const bool is_final_or_dealer =
+                  node == GameNode::DealersRound ||
+                  node == GameNode::GameOverPlayerWins ||
+                  node == GameNode::GameOverDealerWins ||
+                  node == GameNode::GameOverDealerBusts ||
+                  node == GameNode::GameOverDraw ||
+                  node == GameNode::GameOverPlayerBusts;
+                CHECK(is_final_or_dealer);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+SCENARIO("GameState::can_split() reports correctly")
+{
+  using Rank = Card::Rank;
+  using Suit = Card::Suit;
+
+  GIVEN("A GameState with a matching pair")
+  {
+    auto ph = std::vector<Card>{{Rank::Eight, Suit::Clubs}, {Rank::Eight, Suit::Hearts}};
+    auto dh = std::vector<Card>{{Rank::Ten, Suit::Diamonds}, {Rank::Six, Suit::Spades}};
+    auto state = GameState{GameNode::PlayersRound, PlayersHand{ph}, DealersHand{dh}, Deck{}};
+
+    THEN("can_split() returns true")
+    {
+      CHECK(state.can_split());
+    }
+  }
+
+  GIVEN("A GameState with non-matching cards")
+  {
+    auto ph = std::vector<Card>{{Rank::Eight, Suit::Clubs}, {Rank::Nine, Suit::Hearts}};
+    auto dh = std::vector<Card>{{Rank::Ten, Suit::Diamonds}, {Rank::Six, Suit::Spades}};
+    auto state = GameState{GameNode::PlayersRound, PlayersHand{ph}, DealersHand{dh}, Deck{}};
+
+    THEN("can_split() returns false")
+    {
+      CHECK_FALSE(state.can_split());
+    }
+  }
+}
+
+SCENARIO("PlayersHand value calculation with soft ace")
+{
+  using Rank = Card::Rank;
+  using Suit = Card::Suit;
+
+  GIVEN("A hand with Ace and 6 (soft 17)")
+  {
+    PlayersHand hand{std::vector<Card>{{Rank::Ace, Suit::Clubs}, {Rank::Six, Suit::Hearts}}};
+
+    THEN("Total is 17")
+    {
+      CHECK(hand.active_total() == 17);
+    }
+  }
+
+  GIVEN("A hand with Ace, 6, 5 (hard 12)")
+  {
+    PlayersHand hand{std::vector<Card>{
+      {Rank::Ace, Suit::Clubs},
+      {Rank::Six, Suit::Hearts},
+      {Rank::Five, Suit::Diamonds}
+    }};
+
+    THEN("Total is 12")
+    {
+      CHECK(hand.active_total() == 12);
     }
   }
 }

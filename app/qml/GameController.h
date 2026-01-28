@@ -6,6 +6,7 @@
 #include <QtQml/qqmlregistration.h>
 
 #include "blackjack-game.h"
+#include "test-decks.h"
 #include "version.h"
 
 class GameController : public QObject
@@ -21,7 +22,12 @@ class GameController : public QObject
     Q_PROPERTY(bool canDeal READ canDeal NOTIFY gameStateChanged)
     Q_PROPERTY(bool canHit READ canHit NOTIFY gameStateChanged)
     Q_PROPERTY(bool canStay READ canStay NOTIFY gameStateChanged)
+    Q_PROPERTY(bool canSplit READ canSplit NOTIFY gameStateChanged)
     Q_PROPERTY(bool isGameOver READ isGameOver NOTIFY gameStateChanged)
+    Q_PROPERTY(bool isSplitRound READ isSplitRound NOTIFY gameStateChanged)
+    Q_PROPERTY(int handCount READ handCount NOTIFY handsChanged)
+    Q_PROPERTY(int activeHandIndex READ activeHandIndex NOTIFY handsChanged)
+    Q_PROPERTY(QVariantList playerHands READ playerHands NOTIFY handsChanged)
     Q_PROPERTY(QString resultMessage READ resultMessage NOTIFY gameStateChanged)
 
 public:
@@ -36,14 +42,20 @@ public:
     bool canDeal() const;
     bool canHit() const;
     bool canStay() const;
+    bool canSplit() const;
     bool isGameOver() const;
+    bool isSplitRound() const;
+    int handCount() const;
+    int activeHandIndex() const;
+    QVariantList playerHands() const;
     QString resultMessage() const;
 
 public slots:
     void deal();
     void hit();
     void stay();
-    void newGame();
+    void split();
+    void newGame(const QString& deckName = QString{});
 
 signals:
     void gameStateChanged();
@@ -53,5 +65,4 @@ private:
     CardGames::BlackJack::Game m_game;
 
     QVariantMap cardToVariant(const Card& card) const;
-    void runDealerTurn();
 };

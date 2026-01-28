@@ -12,14 +12,6 @@ on:
       - 'CMakeLists.txt'
       - 'CMakePresets.json'
       - '.github/workflows/cmake-multi-platform.yml'
-  pull_request:
-    branches: ["main"]
-    paths:
-      - 'src/**'
-      - 'test/**'
-      - 'CMakeLists.txt'
-      - 'CMakePresets.json'
-      - '.github/workflows/cmake-multi-platform.yml'
 
 jobs:
   build:

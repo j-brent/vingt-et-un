@@ -23,6 +23,11 @@ QtObject {
     readonly property color buttonText: "#ffffff"
     readonly property color buttonTextDisabled: "#666666"
     readonly property color border: "#444444"
+    readonly property color activeHandBg: "#2a4a2a"
+    readonly property color activeHandBorder: "#4a8a4a"
+    readonly property color activeHandText: "#88ff88"
+    readonly property color bustedText: "#ff6666"
+    readonly property color completeText: "#88aaff"
 
     // Sizes (em-based)
     readonly property real cardWidth: em * 8

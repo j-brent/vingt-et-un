@@ -1,3 +1,4 @@
 .vscode/
 /build*
 .claude/settings.local.json
+docs/refactor
