@@ -50,7 +50,7 @@ QString GameController::gameState() const
 QVariantList GameController::playerHand() const
 {
     QVariantList result;
-    for (const auto& card : m_game.state().players_hand()) {
+    for (const auto& card : m_game.state().players_hand().active_cards()) {
         result.append(cardToVariant(card));
     }
     return result;
@@ -59,7 +59,7 @@ QVariantList GameController::playerHand() const
 QVariantList GameController::dealerHand() const
 {
     QVariantList result;
-    for (const auto& card : m_game.state().dealers_hand()) {
+    for (const auto& card : m_game.state().dealer_hand().cards()) {
         result.append(cardToVariant(card));
     }
     return result;
@@ -67,12 +67,12 @@ QVariantList GameController::dealerHand() const
 
 int GameController::playerScore() const
 {
-    return CardGames::BlackJack::add_em_up(m_game.state().players_hand());
+    return m_game.state().players_hand().active_total();
 }
 
 int GameController::dealerScore() const
 {
-    return CardGames::BlackJack::add_em_up(m_game.state().dealers_hand());
+    return m_game.state().dealer_hand().total();
 }
 
 bool GameController::canDeal() const
@@ -107,12 +107,38 @@ bool GameController::isSplitRound() const
 
 int GameController::handCount() const
 {
-    return static_cast<int>(m_game.state().player_hands().size());
+    return static_cast<int>(m_game.state().players_hand().hand_count());
 }
 
 int GameController::activeHandIndex() const
 {
-    return static_cast<int>(m_game.state().active_hand_index());
+    return static_cast<int>(m_game.state().players_hand().active_index());
+}
+
+QVariantList GameController::playerHands() const
+{
+    QVariantList result;
+    const auto& allHands = m_game.state().players_hand().all_hands();
+    const auto activeIdx = m_game.state().players_hand().active_index();
+
+    for (size_t i = 0; i < allHands.size(); ++i) {
+        const auto& hand = allHands[i];
+        QVariantList cards;
+        for (const auto& card : hand.cards) {
+            cards.append(cardToVariant(card));
+        }
+
+        const auto handValue = CardGames::BlackJack::calculate_hand_value(hand.cards);
+        QVariantMap handData;
+        handData["cards"] = cards;
+        handData["score"] = handValue.total;
+        handData["isComplete"] = hand.is_complete;
+        handData["isActive"] = (i == activeIdx);
+        handData["isBusted"] = handValue.total > 21;
+
+        result.append(handData);
+    }
+    return result;
 }
 
 bool GameController::isGameOver() const

@@ -26,6 +26,7 @@ class GameController : public QObject
     Q_PROPERTY(bool isSplitRound READ isSplitRound NOTIFY gameStateChanged)
     Q_PROPERTY(int handCount READ handCount NOTIFY handsChanged)
     Q_PROPERTY(int activeHandIndex READ activeHandIndex NOTIFY handsChanged)
+    Q_PROPERTY(QVariantList playerHands READ playerHands NOTIFY handsChanged)
     Q_PROPERTY(QString resultMessage READ resultMessage NOTIFY gameStateChanged)
 
 public:
@@ -45,6 +46,7 @@ public:
     bool isSplitRound() const;
     int handCount() const;
     int activeHandIndex() const;
+    QVariantList playerHands() const;
     QString resultMessage() const;
 
 public slots:

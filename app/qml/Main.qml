@@ -76,22 +76,23 @@ ApplicationWindow {
         // Spacer
         Item { Layout.fillHeight: true }
 
-        // Player section
+        // Player section - supports up to 4 split hands
         ColumnLayout {
             Layout.fillWidth: true
             spacing: Theme.em * 0.5
 
             Label {
-                text: "Your Hand"
+                text: game.handCount > 1 ? "Your Hands" : "Your Hand"
                 font.pixelSize: Theme.em * Theme.labelFontScale
                 font.family: Theme.uiFamily
                 color: Theme.textSecondary
             }
 
+            // Single hand display (normal play)
             RowLayout {
+                visible: game.handCount <= 1
                 spacing: Theme.em
 
-                // Large score display (left of cards)
                 Text {
                     text: game.playerScore
                     font.pixelSize: Theme.cardHeight * 0.7
@@ -104,6 +105,68 @@ ApplicationWindow {
                 HandView {
                     cards: game.playerHand
                     hideFirst: false
+                }
+            }
+
+            // Multiple hands display (split play)
+            ColumnLayout {
+                visible: game.handCount > 1
+                spacing: Theme.em * 0.5
+
+                Repeater {
+                    model: game.playerHands
+
+                    RowLayout {
+                        spacing: Theme.em * 0.5
+
+                        // Hand indicator (number, active marker)
+                        Rectangle {
+                            width: Theme.em * 2.5
+                            height: Theme.em * 2.5
+                            radius: Theme.em * 0.3
+                            color: modelData.isActive ? Theme.activeHandBg : "transparent"
+                            border.color: modelData.isActive ? Theme.activeHandBorder : Theme.textSecondary
+                            border.width: modelData.isActive ? 2 : 1
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: (index + 1)
+                                font.pixelSize: Theme.em
+                                font.family: Theme.uiFamily
+                                font.bold: modelData.isActive
+                                color: modelData.isActive ? Theme.activeHandText : Theme.textSecondary
+                            }
+                        }
+
+                        // Score display
+                        Text {
+                            text: modelData.score
+                            font.pixelSize: Theme.cardHeight * 0.5
+                            font.family: Theme.cardFamily
+                            font.bold: true
+                            color: modelData.isBusted ? Theme.bustedText : Theme.cardFace
+                            Layout.alignment: Qt.AlignVCenter
+                            Layout.preferredWidth: Theme.em * 2.5
+                        }
+
+                        // Status indicator
+                        Text {
+                            visible: modelData.isComplete
+                            text: modelData.isBusted ? "BUST" : "DONE"
+                            font.pixelSize: Theme.em * 0.8
+                            font.family: Theme.uiFamily
+                            font.bold: true
+                            color: modelData.isBusted ? Theme.bustedText : Theme.completeText
+                            Layout.alignment: Qt.AlignVCenter
+                        }
+
+                        HandView {
+                            cards: modelData.cards
+                            hideFirst: false
+                            scale: 0.8
+                            transformOrigin: Item.Left
+                        }
+                    }
                 }
             }
         }
@@ -182,6 +245,28 @@ ApplicationWindow {
                 font.pixelSize: Theme.em * Theme.labelFontScale
                 font.family: Theme.uiFamily
                 color: parent.enabled ? Theme.buttonText : Theme.buttonTextDisabled
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+            }
+        }
+
+        Button {
+            text: "Split"
+            visible: game.canSplit
+            onClicked: game.split()
+            implicitWidth: Theme.buttonWidth
+            implicitHeight: Theme.buttonHeight
+
+            background: Rectangle {
+                color: parent.hovered ? Theme.buttonBgHover : Theme.buttonBg
+                radius: Theme.buttonRadius
+            }
+
+            contentItem: Text {
+                text: parent.text
+                font.pixelSize: Theme.em * Theme.labelFontScale
+                font.family: Theme.uiFamily
+                color: Theme.buttonText
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
             }

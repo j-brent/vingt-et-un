@@ -24,49 +24,129 @@ namespace CardGames
 		/// Aces count as 11 unless that would cause a bust, then they count as 1
 		HandValue calculate_hand_value(const std::vector<Card>& hand);
 
-		/// A blackjack hand with metadata for split tracking
-		class Hand {
+		/// Dealer's hand - simple container, no split logic
+		class DealersHand {
 		public:
-			Hand() = default;
-			explicit Hand(const std::vector<Card>& cards)
+			DealersHand() = default;
+			explicit DealersHand(const std::vector<Card>& cards)
 				: m_cards{cards} {}
-			Hand(const std::vector<Card>& cards, bool is_split, bool is_complete)
-				: m_cards{cards}, m_is_split_hand{is_split}, m_is_complete{is_complete} {}
 
 			const std::vector<Card>& cards() const { return m_cards; }
 			void add(const Card& card) { m_cards.push_back(card); }
 
-			bool is_split_hand() const { return m_is_split_hand; }
-			bool is_complete() const { return m_is_complete; }
-			void set_complete(bool complete) { m_is_complete = complete; }
-
-			/// Returns true if hand can be split (2 cards of same rank, not already split)
-			bool can_split() const {
-				return m_cards.size() == 2 &&
-				       m_cards[0].rank == m_cards[1].rank &&
-				       !m_is_split_hand;
-			}
-
-			/// Returns the hand value with soft ace logic
 			HandValue value() const { return calculate_hand_value(m_cards); }
-
-			/// Returns true if the hand is soft (has an ace counted as 11)
+			int total() const { return value().total; }
 			bool is_soft() const { return value().is_soft; }
 
-			/// Returns the total value
-			int total() const { return value().total; }
-
-			bool operator==(const Hand& other) const {
-				return m_cards.size() == other.m_cards.size() &&
-				       std::equal(m_cards.begin(), m_cards.end(), other.m_cards.begin()) &&
-				       m_is_split_hand == other.m_is_split_hand &&
-				       m_is_complete == other.m_is_complete;
+			bool operator==(const DealersHand& other) const {
+				return m_cards == other.m_cards;
 			}
 
 		private:
 			std::vector<Card> m_cards;
-			bool m_is_split_hand = false;
-			bool m_is_complete = false;
+		};
+
+		/// Player's hand container managing multiple hands (for splits)
+		class PlayersHand {
+		public:
+			struct SingleHand {
+				std::vector<Card> cards;
+				bool is_from_split = false;
+				bool is_from_split_aces = false;
+				bool is_complete = false;
+				int split_count = 0;
+
+				bool operator==(const SingleHand& other) const {
+				return cards == other.cards &&
+				       is_from_split == other.is_from_split &&
+				       is_from_split_aces == other.is_from_split_aces &&
+				       is_complete == other.is_complete &&
+				       split_count == other.split_count;
+			}
+			};
+
+			PlayersHand() = default;
+			explicit PlayersHand(const std::vector<Card>& cards) {
+				m_hands[0].cards = cards;
+			}
+
+			// Active hand operations
+			const std::vector<Card>& active_cards() const { return m_hands[m_active_index].cards; }
+			void add_to_active(const Card& card) { m_hands[m_active_index].cards.push_back(card); }
+			int active_total() const { return calculate_hand_value(active_cards()).total; }
+			bool active_is_busted() const { return active_total() > 21; }
+
+			// Split operations
+			bool can_split(bool allow_resplit_aces = false) const {
+				const auto& hand = m_hands[m_active_index];
+				return hand.cards.size() == 2 &&
+				       hand.cards[0].rank == hand.cards[1].rank &&
+				       (allow_resplit_aces || !hand.is_from_split_aces) &&
+				       hand.split_count < 3;
+			}
+
+			void split(const Card& first_new_card, const Card& second_new_card) {
+				auto& current = m_hands[m_active_index];
+				const bool is_aces = current.cards[0].rank == Card::Rank::Ace;
+				const int new_split_count = current.split_count + 1;
+
+				// Create second hand from split
+				SingleHand second_hand;
+				second_hand.cards = {current.cards[1], second_new_card};
+				second_hand.is_from_split = true;
+				second_hand.is_from_split_aces = is_aces;
+				second_hand.is_complete = is_aces;
+				second_hand.split_count = new_split_count;
+
+				// Update current hand
+				current.cards = {current.cards[0], first_new_card};
+				current.is_from_split = true;
+				current.is_from_split_aces = is_aces;
+				current.is_complete = is_aces;
+				current.split_count = new_split_count;
+
+				// Insert second hand after current
+				m_hands.insert(m_hands.begin() + static_cast<long>(m_active_index) + 1, second_hand);
+			}
+
+			// Completion tracking
+			void mark_active_complete() { m_hands[m_active_index].is_complete = true; }
+
+			bool advance_to_next_incomplete() {
+				for (size_t i = m_active_index + 1; i < m_hands.size(); ++i) {
+					if (!m_hands[i].is_complete) {
+						m_active_index = i;
+						return true;
+					}
+				}
+				return false;
+			}
+
+			bool all_complete() const {
+				return std::all_of(m_hands.begin(), m_hands.end(),
+				                   [](const SingleHand& h) { return h.is_complete; });
+			}
+
+			bool all_busted() const {
+				return std::all_of(m_hands.begin(), m_hands.end(),
+				                   [](const SingleHand& h) {
+					                   return h.is_complete &&
+					                          calculate_hand_value(h.cards).total > 21;
+				                   });
+			}
+
+			// Multi-hand queries
+			size_t hand_count() const { return m_hands.size(); }
+			size_t active_index() const { return m_active_index; }
+			const std::vector<SingleHand>& all_hands() const { return m_hands; }
+
+			bool operator==(const PlayersHand& other) const {
+				return m_hands == other.m_hands && m_active_index == other.m_active_index;
+			}
+
+		private:
+			std::vector<SingleHand> m_hands = {SingleHand{}};
+			size_t m_active_index = 0;
 		};
 
 		enum class GameNode {
@@ -85,102 +165,68 @@ namespace CardGames
 		public:
 			GameState() = default;
 
-			/// Legacy constructor for backward compatibility
-			GameState(const GameNode& node, const std::vector<Card>& players_hand,
-								const std::vector<Card>& dealers_hand, const Deck& deck)
+			GameState(GameNode node, PlayersHand players_hand,
+			          DealersHand dealers_hand, Deck deck)
 				: m_node{node}
-				, m_player_hands{Hand{players_hand}}
-				, m_dealers_hand{Hand{dealers_hand}}
-				, m_deck{deck}
-			{
-			}
-
-			/// New constructor for split support
-			GameState(const GameNode& node, const std::vector<Hand>& player_hands,
-								size_t active_index, const Hand& dealers_hand, const Deck& deck)
-				: m_node{node}
-				, m_player_hands{player_hands}
-				, m_active_hand_index{active_index}
-				, m_dealers_hand{dealers_hand}
-				, m_deck{deck}
+				, m_players_hand{std::move(players_hand)}
+				, m_dealers_hand{std::move(dealers_hand)}
+				, m_deck{std::move(deck)}
 			{
 			}
 
 			GameNode node() const { return m_node; }
-
-			/// Returns the active player hand's cards (for backward compatibility)
-			const std::vector<Card>& players_hand() const {
-				static const std::vector<Card> empty_cards;
-				return m_player_hands.empty() ? empty_cards : m_player_hands[m_active_hand_index].cards();
-			}
-
-			/// Returns the dealer's hand cards (for backward compatibility)
-			const std::vector<Card>& dealers_hand() const { return m_dealers_hand.cards(); }
-
+			const PlayersHand& players_hand() const { return m_players_hand; }
+			const DealersHand& dealer_hand() const { return m_dealers_hand; }
 			const Deck& deck() const { return m_deck; }
 
-			/// New accessors for split support
-			const std::vector<Hand>& player_hands() const { return m_player_hands; }
-			const Hand& active_hand() const { return m_player_hands[m_active_hand_index]; }
-			size_t active_hand_index() const { return m_active_hand_index; }
-			const Hand& dealer_hand() const { return m_dealers_hand; }
-
-			/// Returns true if the active hand can be split
-			bool can_split() const {
-				return !m_player_hands.empty() && m_player_hands[m_active_hand_index].can_split();
+			bool can_split(bool allow_resplit_aces = false) const {
+				return m_players_hand.can_split(allow_resplit_aces);
 			}
 
 		private:
 			GameNode m_node = GameNode::Ready;
-			std::vector<Hand> m_player_hands = {};
-			size_t m_active_hand_index = 0;
-			Hand m_dealers_hand;
+			PlayersHand m_players_hand;
+			DealersHand m_dealers_hand;
 			Deck m_deck = {shuffle(Deck{})};
 		};
 
 		inline bool operator==(const GameState& lhs, const GameState& rhs)
 		{
-			if (lhs.node() != rhs.node()) return false;
-			if (lhs.active_hand_index() != rhs.active_hand_index()) return false;
-			if (lhs.player_hands().size() != rhs.player_hands().size()) return false;
-			if (!(lhs.dealer_hand() == rhs.dealer_hand())) return false;
-			if (!(lhs.deck() == rhs.deck())) return false;
-
-			for (size_t i = 0; i < lhs.player_hands().size(); ++i) {
-				if (!(lhs.player_hands()[i] == rhs.player_hands()[i])) return false;
-			}
-			return true;
+			return lhs.node() == rhs.node() &&
+			       lhs.players_hand() == rhs.players_hand() &&
+			       lhs.dealer_hand() == rhs.dealer_hand() &&
+			       lhs.deck() == rhs.deck();
 		}
 
 		static_assert(is_regular<GameState>::value,
 									"User-defined type GameState is not a regular type.");
 
-		/// Configuration for dealer behavior
-		struct DealerRules {
-			bool hit_soft_17 = true;  ///< If true, dealer hits on soft 17 (standard casino rule)
+		/// Configuration for blackjack game rules
+		struct BlackjackConfig {
+			bool hit_soft_17 = true;         ///< If true, dealer hits on soft 17 (standard casino rule)
+			bool allow_resplit_aces = false; ///< If true, player can resplit aces (RSA); default is NRSA
 		};
 
     class Game
     {
     public:
-      enum class Play { Deal, Hit, Stay, Split };
-			const GameState& next(Play play);
-			const GameState& state() const { return history.back(); }
+    	enum class Play { Deal, Hit, Stay, Split };
 
-			/// Access dealer rules configuration
-			DealerRules& dealer_rules() { return m_dealer_rules; }
-			const DealerRules& dealer_rules() const { return m_dealer_rules; }
+		explicit Game(BlackjackConfig config = {}) : m_config{config} {}
 
-		private:
-			/// Plays the dealer's turn automatically according to dealer rules
-			/// Called after player stays; appends states to history until game over
-			void play_dealer_turn();
+		const GameState& next(Play play);
+		const GameState& state() const { return history.back(); }
 
-      std::vector<GameState> history = {GameState{}};
-			DealerRules m_dealer_rules;
-		};
+	private:
+		/// Plays the dealer's turn automatically according to game rules
+		/// Called after player stays; appends states to history until game over
+		void play_dealer_turn();
 
-		int add_em_up(const std::vector<Card>& hand);
+		std::vector<GameState> history = {GameState{}};
+		BlackjackConfig m_config;
+	};
+
+	int add_em_up(const std::vector<Card>& hand);
 
 	} // namespace BlackJack
 } // namespace CardGames

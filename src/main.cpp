@@ -64,9 +64,9 @@ namespace blackjack_io
 	{
 		std::cout << std::endl;
 		std::cout << "Dealer: ";
-		print_hand(state.dealers_hand());
+		print_hand(state.dealer_hand().cards());
 		std::cout << "Player: ";
-		print_hand(state.players_hand());
+		print_hand(state.players_hand().active_cards());
 	}
 
 	void print_game_state(const CardGames::BlackJack::GameState& state)
@@ -75,54 +75,55 @@ namespace blackjack_io
 		if (state.node() == GameNode::Ready) {
 			writeline("Let's play some blackjack!");
 		} else if (state.node() == GameNode::PlayersRound || state.node() == GameNode::DealersRound) {
-			auto dealers_hand = state.dealers_hand();
-			auto players_hand = state.players_hand();
+			const auto& dealers_hand = state.dealer_hand().cards();
+			const auto& players_hand = state.players_hand().active_cards();
 			std::cout << "Dealer: ";
 			print_hand_hide_some(dealers_hand, 1);
 			std::cout << "Player: ";
 			print_hand(players_hand);
-			std::cout << "(" << CardGames::BlackJack::add_em_up(players_hand) << ")" << std::endl;
+			std::cout << "(" << state.players_hand().active_total() << ")" << std::endl;
 		} else if (state.node() == GameNode::PlayersSplitRound) {
-			auto dealers_hand = state.dealers_hand();
+			const auto& dealers_hand = state.dealer_hand().cards();
 			std::cout << "Dealer: ";
 			print_hand_hide_some(dealers_hand, 1);
 			std::cout << "\nSplit hands:\n";
-			for (size_t i = 0; i < state.player_hands().size(); ++i) {
-				const auto& hand = state.player_hands()[i];
+			const auto& all_hands = state.players_hand().all_hands();
+			for (size_t i = 0; i < all_hands.size(); ++i) {
+				const auto& hand = all_hands[i];
 				std::cout << "  Hand " << (i + 1);
-				if (i == state.active_hand_index()) {
+				if (i == state.players_hand().active_index()) {
 					std::cout << " (active)";
 				}
-				if (hand.is_complete()) {
+				if (hand.is_complete) {
 					std::cout << " [done]";
 				}
 				std::cout << ": ";
-				print_hand(hand.cards());
-				std::cout << "    (" << hand.total() << ")" << std::endl;
+				print_hand(hand.cards);
+				std::cout << "    (" << calculate_hand_value(hand.cards).total << ")" << std::endl;
 			}
 		} else if (state.node() == GameNode::GameOverPlayerWins) {
 			print_all_cards_face_up(state);
-			const auto player = CardGames::BlackJack::add_em_up(state.players_hand());
-			const auto dealer = CardGames::BlackJack::add_em_up(state.dealers_hand());
+			const auto player = state.players_hand().active_total();
+			const auto dealer = state.dealer_hand().total();
 			writeline("Congratulations! You win, " + std::to_string(player) + " to " +
 								std::to_string(dealer));
 		} else if (state.node() == GameNode::GameOverPlayerBusts) {
 			print_all_cards_face_up(state);
-			const auto player = CardGames::BlackJack::add_em_up(state.players_hand());
+			const auto player = state.players_hand().active_total();
 			writeline("Sorry, you bust(" + std::to_string(player) + "). Dealer wins.");
 		} else if (state.node() == GameNode::GameOverDealerWins) {
 			print_all_cards_face_up(state);
-			const auto player = CardGames::BlackJack::add_em_up(state.players_hand());
-			const auto dealer = CardGames::BlackJack::add_em_up(state.dealers_hand());
+			const auto player = state.players_hand().active_total();
+			const auto dealer = state.dealer_hand().total();
 			writeline("Dealer wins, " + std::to_string(dealer) + " to " + std::to_string(player));
 		} else if (state.node() == GameNode::GameOverDealerBusts) {
 			print_all_cards_face_up(state);
-			const auto dealer = CardGames::BlackJack::add_em_up(state.dealers_hand());
+			const auto dealer = state.dealer_hand().total();
 			writeline("Dealer busts (" + std::to_string(dealer) + "). You win!");
 		} else if (state.node() == GameNode::GameOverDraw) {
 			print_all_cards_face_up(state);
-			const auto player = CardGames::BlackJack::add_em_up(state.players_hand());
-			const auto dealer = CardGames::BlackJack::add_em_up(state.dealers_hand());
+			const auto player = state.players_hand().active_total();
+			const auto dealer = state.dealer_hand().total();
 			assert(player == dealer);
 			writeline("Draw, " + std::to_string(dealer) + " up.");
 		} else {
