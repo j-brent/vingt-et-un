@@ -1,16 +1,30 @@
 name: clang-format check
 
 on:
+  workflow_dispatch:
   pull_request:
     branches: [main]
-    paths:
-      - 'src/**'
-      - 'app/**'
-      - 'test/**'
-      - '.clang-format'
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      should_check: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            code:
+              - 'src/**'
+              - 'app/**'
+              - 'test/**'
+              - '.clang-format'
+
   format-check:
+    needs: changes
+    if: needs.changes.outputs.should_check == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,3 +33,21 @@ jobs:
         run: |
           find src app test -name '*.cpp' -o -name '*.h' | \
             xargs clang-format --dry-run --Werror
+
+  format-check-gate:
+    if: always()
+    needs: [changes, format-check]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check format result
+        run: |
+          if [[ "${{ needs.changes.outputs.should_check }}" != "true" ]]; then
+            echo "Format check skipped — no relevant file changes."
+            exit 0
+          fi
+          if [[ "${{ needs.format-check.result }}" == "success" ]]; then
+            echo "Format check passed."
+            exit 0
+          fi
+          echo "Format check failed."
+          exit 1
