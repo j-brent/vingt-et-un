@@ -99,7 +99,7 @@ jobs:
 
   # Gate job that always runs so it can be used as a required status check.
   # Reports success when the build is skipped (no code changes) or passes.
-  build-gate:
+  cmake-build-gate:
     if: always()
     needs: [changes, build]
     runs-on: ubuntu-latest

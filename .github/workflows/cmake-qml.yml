@@ -69,7 +69,7 @@ jobs:
         env:
           QT_QPA_PLATFORM: offscreen
 
-  build-gate:
+  qml-build-gate:
     if: always()
     needs: [changes, build]
     runs-on: ubuntu-latest
