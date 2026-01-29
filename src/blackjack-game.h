@@ -74,14 +74,14 @@ namespace CardGames
 			bool can_split(bool allow_resplit_aces = false) const
 			{
 				const auto& hand = m_hands[m_active_index];
-				return hand.cards.size() == 2 && hand.cards[0].rank == hand.cards[1].rank &&
+				return hand.cards.size() == 2 && hand.cards[0].rank() == hand.cards[1].rank() &&
 							 (allow_resplit_aces || !hand.is_from_split_aces) && hand.split_count < 3;
 			}
 
 			void split(const Card& first_new_card, const Card& second_new_card)
 			{
 				auto& current = m_hands[m_active_index];
-				const bool is_aces = current.cards[0].rank == Card::Rank::Ace;
+				const bool is_aces = current.cards[0].rank() == Card::Rank::Ace;
 				const int new_split_count = current.split_count + 1;
 
 				// Create second hand from split

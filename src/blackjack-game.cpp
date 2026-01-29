@@ -13,7 +13,7 @@ namespace CardGames
 			int ace_count = 0;
 
 			for (const auto& card : hand) {
-				switch (card.rank) {
+				switch (card.rank()) {
 					case Card::Rank::Ace:
 						total += 11;
 						++ace_count;
@@ -21,7 +21,7 @@ namespace CardGames
 					case Card::Rank::King:
 					case Card::Rank::Queen:
 					case Card::Rank::Jack: total += 10; break;
-					default: total += static_cast<int>(card.rank); break;
+					default: total += static_cast<int>(card.rank()); break;
 				}
 			}
 
@@ -90,7 +90,7 @@ namespace CardGames
 						if (current_state.can_split(m_config.allow_resplit_aces)) {
 							auto deck = current_state.deck();
 							auto players_hand = current_state.players_hand();
-							const bool is_aces = players_hand.active_cards()[0].rank == Card::Rank::Ace;
+							const bool is_aces = players_hand.active_cards()[0].rank() == Card::Rank::Ace;
 
 							players_hand.split(deck.deal(1).front(), deck.deal(1).front());
 
@@ -153,7 +153,7 @@ namespace CardGames
 						if (current_state.can_split(m_config.allow_resplit_aces)) {
 							auto deck = current_state.deck();
 							auto players_hand = current_state.players_hand();
-							const bool is_aces = players_hand.active_cards()[0].rank == Card::Rank::Ace;
+							const bool is_aces = players_hand.active_cards()[0].rank() == Card::Rank::Ace;
 
 							players_hand.split(deck.deal(1).front(), deck.deal(1).front());
 

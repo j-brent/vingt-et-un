@@ -55,7 +55,7 @@ std::ostream& operator<<(std::ostream& os, const Card::Suit& suit)
 
 std::ostream& operator<<(std::ostream& os, const Card& card)
 {
-	os << card.rank << " of " << card.suit;
+	os << card.rank() << " of " << card.suit();
 	return os;
 }
 
@@ -124,7 +124,7 @@ std::wostream& operator<<(std::wostream& os, const Card::Suit& suit)
 
 std::wostream& operator<<(std::wostream& os, const Card& card)
 {
-	os << card.rank << card.suit;
+	os << card.rank() << card.suit();
 	return os;
 }
 

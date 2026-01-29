@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python -c \"import sys,json; d=json.load(sys.stdin); fp=d.get('tool_input',{}).get('file_path',''); exit(0) if not fp.endswith(('.cpp','.h')) else None; import subprocess; subprocess.run(['clang-format','-i',fp])\""
+            "command": "python -c \"import sys,json,shutil,subprocess; d=json.load(sys.stdin); fp=d.get('tool_input',{}).get('file_path',''); exit(0) if not fp.endswith(('.cpp','.h')) else None; cf=shutil.which('clang-format'); sys.exit('ERROR: clang-format not found on PATH. Install LLVM or add it to PATH.') if not cf else subprocess.run([cf,'-i',fp])\""
           }
         ]
       }
