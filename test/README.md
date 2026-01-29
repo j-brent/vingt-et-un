@@ -12,12 +12,12 @@ Tests verify that `Card` behaves as a regular value type with correct constructi
 |---|---|---|
 | Dual constructor ordering `(Rank, Suit)` and `(Suit, Rank)` | Equivalence partitioning | [L16](card_tests.cpp#L16) |
 | `operator==` — identical, same rank/different suit, same suit/different rank, fully different, reflexive, symmetric | Equivalence partitioning | [L56](card_tests.cpp#L56) |
-| `operator<` — lower vs higher rank, same rank different suit, irreflexive, full 13-rank transitivity chain | Boundary analysis | [L129](card_tests.cpp#L129) |
+| `operator<=>` — lower vs higher rank, same rank different suit, irreflexive, full 13-rank transitivity chain | Boundary analysis | [L129](card_tests.cpp#L129) |
 | Boundary ranks (Two=2, Ace=14, Ten/Jack boundary, face card progression) | Boundary analysis | [L193](card_tests.cpp#L193) |
 | `Card::suits()` — count, order, distinctness | Coverage | [L252](card_tests.cpp#L252) |
 | Copy construction and copy assignment | Regular type semantics | [L287](card_tests.cpp#L287) |
-| `std::sort`, `std::find`, `std::count` with Cards | Container interop | [L322](card_tests.cpp#L322) |
-| `operator<` vs `operator==` consistency (same rank, different suit) | Error guessing | [L397](card_tests.cpp#L397) |
+| `std::ranges::sort`, `std::ranges::find`, `std::ranges::count` with Cards | Container interop | [L322](card_tests.cpp#L322) |
+| `operator<=>` vs `operator==` consistency (same rank, different suit) | Error guessing | [L397](card_tests.cpp#L397) |
 | All 13 rank enum underlying values | Exhaustive | [L425](card_tests.cpp#L425) |
 | 13 ranks in one suit — distinctness and sort order | Exhaustive | [L449](card_tests.cpp#L449) |
 | 4 suits with same rank — distinct under `==`, equivalent under `<` | Exhaustive | [L494](card_tests.cpp#L494) |
@@ -99,8 +99,6 @@ Tests verify `operator<<` overloads for `Rank`, `Suit`, and `Card` produce corre
 | Stream chaining — two cards in sequence | Coverage | [L233](streaming_tests.cpp#L233) |
 | Return type — `operator<<` returns `ostream&` for all three overloads | Coverage | [L253](streaming_tests.cpp#L253) |
 
-## CompileTimeChecks
+## Compile-Time Type Checks
 
-**File:** `src/CompileTimeChecks.h`
-
-No runtime tests. This header contains `static_assert` declarations that verify regular type properties (`is_regular`) for core types at compile time. These assertions are validated every time the project builds successfully.
+No runtime tests. Core type headers contain `static_assert(std::regular<T>)` declarations (using the C++20 `<concepts>` library) that verify regular type semantics for `Card`, `Deck`, and `GameState` at compile time. These assertions are validated every time the project builds successfully.

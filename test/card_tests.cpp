@@ -333,7 +333,7 @@ SCENARIO("Card usability with standard algorithms")
 
     WHEN("Sorting with std::sort using operator<")
     {
-      std::sort(cards.begin(), cards.end());
+      std::ranges::sort(cards);
 
       THEN("Cards are in ascending rank order")
       {
@@ -357,7 +357,7 @@ SCENARIO("Card usability with standard algorithms")
     WHEN("Using std::find to locate a specific card")
     {
       const auto target = Card{Rank::Ten, Suit::Hearts};
-      auto it = std::find(cards.begin(), cards.end(), target);
+      auto it = std::ranges::find(cards, target);
 
       THEN("The card is found")
       {
@@ -369,7 +369,7 @@ SCENARIO("Card usability with standard algorithms")
     WHEN("Using std::find for a card not in the vector")
     {
       const auto missing = Card{Rank::Ace, Suit::Spades};
-      auto it = std::find(cards.begin(), cards.end(), missing);
+      auto it = std::ranges::find(cards, missing);
 
       THEN("The card is not found")
       {
@@ -380,7 +380,7 @@ SCENARIO("Card usability with standard algorithms")
     WHEN("Using std::count to count cards of a specific rank and suit")
     {
       const auto target = Card{Rank::Five, Suit::Clubs};
-      auto count = std::count(cards.begin(), cards.end(), target);
+      auto count = std::ranges::count(cards, target);
 
       THEN("Exactly one match is found (equality uses rank AND suit)")
       {
@@ -478,7 +478,7 @@ SCENARIO("All 13 ranks can be paired with any suit")
     THEN("They sort into ascending order by rank")
     {
       auto sorted = cards;
-      std::sort(sorted.begin(), sorted.end());
+      std::ranges::sort(sorted);
 
       for (size_t i = 0; i + 1 < sorted.size(); ++i) {
         CHECK(sorted[i] < sorted[i + 1]);

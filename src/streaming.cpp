@@ -150,7 +150,7 @@ void print_terse(const Deck& deck)
 }
 #endif
 
-void print_hand(const std::vector<Card>& hand)
+void print_hand(std::span<const Card> hand)
 {
 #ifdef _WIN32
 	// see example at https://msdn.microsoft.com/en-us/library/tw4k6df8.aspx
@@ -171,14 +171,14 @@ void print_hidden_hand(size_t num_cards)
 	std::cout << std::endl;
 }
 
-void print_hand_hide_some(const std::vector<Card>& hand, size_t num_to_hide)
+void print_hand_hide_some(std::span<const Card> hand, size_t num_to_hide)
 {
 	repeat(num_to_hide, []() { std::cout << " **  "; });
 #ifdef _WIN32
 	auto old_mode = _setmode(_fileno(stdout), _O_U16TEXT);
 #endif
 	for (auto i = num_to_hide; i < hand.size(); ++i) {
-		const auto& card = hand.at(i);
+		const auto& card = hand[i];
 		std::wcout << card << L"  ";
 	}
 #ifdef _WIN32

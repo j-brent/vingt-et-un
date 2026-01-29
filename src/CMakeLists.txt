@@ -2,7 +2,6 @@ add_library(cardgames
   blackjack-game.h
   blackjack-game.cpp
   card.h
-  CompileTimeChecks.h
   deck.h
   deck.cpp
   streaming.h

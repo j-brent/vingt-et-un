@@ -1059,19 +1059,19 @@ SCENARIO("add_em_up returns correct value for each rank individually")
 
   THEN("Each rank produces its expected blackjack value")
   {
-    CHECK(add_em_up({{Rank::Two, Suit::Clubs}}) == 2);
-    CHECK(add_em_up({{Rank::Three, Suit::Clubs}}) == 3);
-    CHECK(add_em_up({{Rank::Four, Suit::Clubs}}) == 4);
-    CHECK(add_em_up({{Rank::Five, Suit::Clubs}}) == 5);
-    CHECK(add_em_up({{Rank::Six, Suit::Clubs}}) == 6);
-    CHECK(add_em_up({{Rank::Seven, Suit::Clubs}}) == 7);
-    CHECK(add_em_up({{Rank::Eight, Suit::Clubs}}) == 8);
-    CHECK(add_em_up({{Rank::Nine, Suit::Clubs}}) == 9);
-    CHECK(add_em_up({{Rank::Ten, Suit::Clubs}}) == 10);
-    CHECK(add_em_up({{Rank::Jack, Suit::Clubs}}) == 10);
-    CHECK(add_em_up({{Rank::Queen, Suit::Clubs}}) == 10);
-    CHECK(add_em_up({{Rank::King, Suit::Clubs}}) == 10);
-    CHECK(add_em_up({{Rank::Ace, Suit::Clubs}}) == 11);
+    CHECK(add_em_up(std::array{Card{Rank::Two, Suit::Clubs}}) == 2);
+    CHECK(add_em_up(std::array{Card{Rank::Three, Suit::Clubs}}) == 3);
+    CHECK(add_em_up(std::array{Card{Rank::Four, Suit::Clubs}}) == 4);
+    CHECK(add_em_up(std::array{Card{Rank::Five, Suit::Clubs}}) == 5);
+    CHECK(add_em_up(std::array{Card{Rank::Six, Suit::Clubs}}) == 6);
+    CHECK(add_em_up(std::array{Card{Rank::Seven, Suit::Clubs}}) == 7);
+    CHECK(add_em_up(std::array{Card{Rank::Eight, Suit::Clubs}}) == 8);
+    CHECK(add_em_up(std::array{Card{Rank::Nine, Suit::Clubs}}) == 9);
+    CHECK(add_em_up(std::array{Card{Rank::Ten, Suit::Clubs}}) == 10);
+    CHECK(add_em_up(std::array{Card{Rank::Jack, Suit::Clubs}}) == 10);
+    CHECK(add_em_up(std::array{Card{Rank::Queen, Suit::Clubs}}) == 10);
+    CHECK(add_em_up(std::array{Card{Rank::King, Suit::Clubs}}) == 10);
+    CHECK(add_em_up(std::array{Card{Rank::Ace, Suit::Clubs}}) == 11);
   }
 }
 
