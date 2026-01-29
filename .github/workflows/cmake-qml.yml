@@ -4,15 +4,28 @@ on:
   workflow_dispatch:
   push:
     branches: ['**']
-    paths:
-      - 'src/**'
-      - 'app/qml/**'
-      - 'CMakeLists.txt'
-      - 'CMakePresets.json'
-      - '.github/workflows/cmake-qml.yml'
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      should_build: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            code:
+              - 'src/**'
+              - 'app/qml/**'
+              - 'CMakeLists.txt'
+              - 'CMakePresets.json'
+              - '.github/workflows/cmake-qml.yml'
+
   build:
+    needs: changes
+    if: needs.changes.outputs.should_build == 'true'
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -55,3 +68,21 @@ jobs:
         run: ctest --preset ${{ matrix.test_preset }}
         env:
           QT_QPA_PLATFORM: offscreen
+
+  build-gate:
+    if: always()
+    needs: [changes, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check build result
+        run: |
+          if [[ "${{ needs.changes.outputs.should_build }}" != "true" ]]; then
+            echo "Build skipped — no relevant file changes."
+            exit 0
+          fi
+          if [[ "${{ needs.build.result }}" == "success" ]]; then
+            echo "Build passed."
+            exit 0
+          fi
+          echo "Build failed."
+          exit 1
