@@ -71,21 +71,26 @@ flowchart LR
 
 ## GameController
 
-The `GameController` class (`app/qml/GameController.h:10-54`) bridges the C++ `Game` state machine to QML using Qt's property system.
+The `GameController` class (`app/qml/GameController.h:12-68`) bridges the C++ `Game` state machine to QML using Qt's property system.
 
 ### Properties (Q_PROPERTY)
 
 | Property | Type | Description |
 |----------|------|-------------|
 | `gameState` | `QString` | Current state as string ("ready", "playersTurn", etc.) |
-| `playerHand` | `QVariantList` | Player's cards as list of {suit, rank} objects |
+| `playerHand` | `QVariantList` | Player's active hand cards as list of {suit, rank} objects |
 | `dealerHand` | `QVariantList` | Dealer's cards as list of {suit, rank} objects |
-| `playerScore` | `int` | Player's hand value |
+| `playerScore` | `int` | Player's active hand value |
 | `dealerScore` | `int` | Dealer's hand value |
 | `canDeal` | `bool` | True when Deal action is valid |
 | `canHit` | `bool` | True when Hit action is valid |
 | `canStay` | `bool` | True when Stay action is valid |
+| `canSplit` | `bool` | True when Split action is valid |
 | `isGameOver` | `bool` | True when game has ended |
+| `isSplitRound` | `bool` | True when playing split hands |
+| `handCount` | `int` | Number of player hands (1-4) |
+| `activeHandIndex` | `int` | Index of currently active hand |
+| `playerHands` | `QVariantList` | All player hands with per-hand data |
 | `resultMessage` | `QString` | Win/lose/draw message |
 
 ### Slots
@@ -94,8 +99,9 @@ The `GameController` class (`app/qml/GameController.h:10-54`) bridges the C++ `G
 |------|-------------|
 | `deal()` | Start game, deal initial cards |
 | `hit()` | Draw another card |
-| `stay()` | End player turn, run dealer logic |
-| `newGame()` | Reset to initial state |
+| `stay()` | End player turn, triggers dealer auto-play when all hands complete |
+| `split()` | Split matching pair into two hands |
+| `newGame(deckName)` | Reset to initial state, optionally with a named test deck |
 
 ### Signals
 
@@ -110,7 +116,7 @@ Application window containing:
 - Dealer's hand display (first card hidden during play)
 - Status message
 - Player's hand display with score
-- Action buttons (Deal, Hit, Stay, New Game)
+- Action buttons (Deal, Hit, Stay, Split, New Game)
 
 ### CardView.qml
 
@@ -127,13 +133,9 @@ Row layout of `CardView` components with properties:
 - `cards` - Array of {rank, suit} objects
 - `hideFirst` - Boolean to show first card face-down
 
-## Dealer AI
+## Dealer Auto-Play
 
-The dealer's turn is automated in `GameController::runDealerTurn()` (`app/qml/GameController.cpp:140-152`):
-- Hits while total < 17
-- Stays at 17 or above
-
-This matches the standard dealer strategy used in the console version.
+The dealer's turn is handled automatically by `Game::play_dealer_turn()` in the core library (`src/blackjack-game.cpp:208-245`). When the player stays (or all split hands complete), the game state machine automatically plays the dealer's hand according to configurable rules (hit on soft 17, etc.) and returns the final game-over state. The GameController simply delegates to `Game::next(Stay)` and emits state change signals.
 
 ## File References
 
