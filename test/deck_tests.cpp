@@ -356,7 +356,7 @@ SCENARIO("Default deck contains all 52 unique cards")
 			for (const auto& suit : Card::suits()) {
 				int count = 0;
 				for (const auto& card : cards) {
-					if (card.suit == suit)
+					if (card.suit() == suit)
 						++count;
 				}
 				CHECK(count == 13);

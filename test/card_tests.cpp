@@ -20,8 +20,8 @@ SCENARIO("Card construction")
 
 		THEN("The rank and suit are set correctly")
 		{
-			CHECK(card.rank == Rank::Ace);
-			CHECK(card.suit == Suit::Spades);
+			CHECK(card.rank() == Rank::Ace);
+			CHECK(card.suit() == Suit::Spades);
 		}
 	}
 
@@ -31,8 +31,8 @@ SCENARIO("Card construction")
 
 		THEN("The rank and suit are set correctly")
 		{
-			CHECK(card.rank == Rank::King);
-			CHECK(card.suit == Suit::Hearts);
+			CHECK(card.rank() == Rank::King);
+			CHECK(card.suit() == Suit::Hearts);
 		}
 	}
 
@@ -195,7 +195,7 @@ SCENARIO("Boundary rank values")
 
 		THEN("Its underlying value is 2")
 		{
-			CHECK(static_cast<int>(two.rank) == 2);
+			CHECK(static_cast<int>(two.rank()) == 2);
 		}
 	}
 
@@ -205,7 +205,7 @@ SCENARIO("Boundary rank values")
 
 		THEN("Its underlying value is 14")
 		{
-			CHECK(static_cast<int>(ace.rank) == 14);
+			CHECK(static_cast<int>(ace.rank()) == 14);
 		}
 	}
 
@@ -294,8 +294,8 @@ SCENARIO("Card copy semantics")
 			THEN("The copy equals the original")
 			{
 				CHECK(copy == original);
-				CHECK(copy.rank == Rank::Eight);
-				CHECK(copy.suit == Suit::Diamonds);
+				CHECK(copy.rank() == Rank::Eight);
+				CHECK(copy.suit() == Suit::Diamonds);
 			}
 		}
 
@@ -332,11 +332,11 @@ SCENARIO("Card usability with standard algorithms")
 
 			THEN("Cards are in ascending rank order")
 			{
-				CHECK(cards[0].rank == Rank::Two);
-				CHECK(cards[1].rank == Rank::Jack);
-				CHECK(cards[2].rank == Rank::Queen);
-				CHECK(cards[3].rank == Rank::King);
-				CHECK(cards[4].rank == Rank::Ace);
+				CHECK(cards[0].rank() == Rank::Two);
+				CHECK(cards[1].rank() == Rank::Jack);
+				CHECK(cards[2].rank() == Rank::Queen);
+				CHECK(cards[3].rank() == Rank::King);
+				CHECK(cards[4].rank() == Rank::Ace);
 			}
 		}
 	}
@@ -536,8 +536,8 @@ SCENARIO("Card satisfies regular type properties at runtime")
 
 			THEN("The moved-to card has the expected values")
 			{
-				CHECK(moved.rank == Rank::Six);
-				CHECK(moved.suit == Suit::Hearts);
+				CHECK(moved.rank() == Rank::Six);
+				CHECK(moved.suit() == Suit::Hearts);
 			}
 		}
 
@@ -548,8 +548,8 @@ SCENARIO("Card satisfies regular type properties at runtime")
 
 			THEN("The target has the expected values")
 			{
-				CHECK(target.rank == Rank::Six);
-				CHECK(target.suit == Suit::Hearts);
+				CHECK(target.rank() == Rank::Six);
+				CHECK(target.suit() == Suit::Hearts);
 			}
 		}
 	}

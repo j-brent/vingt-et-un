@@ -20,7 +20,7 @@ QVariantMap GameController::cardToVariant(const Card& card) const
 		{Card::Rank::Jack, "J"},	{Card::Rank::Queen, "Q"}, {Card::Rank::King, "K"},
 		{Card::Rank::Ace, "A"}};
 
-	return {{"suit", suitNames[card.suit]}, {"rank", rankNames[card.rank]}};
+	return {{"suit", suitNames[card.suit()]}, {"rank", rankNames[card.rank()]}};
 }
 
 QString GameController::gameState() const

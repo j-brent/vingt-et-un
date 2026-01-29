@@ -30,21 +30,28 @@ struct Card {
 
 	Card() = default;
 	Card(Rank rank, Suit suit)
-		: suit{suit}
-		, rank{rank}
+		: m_suit{suit}
+		, m_rank{rank}
 	{
 	}
 	Card(Suit suit, Rank rank)
-		: suit{suit}
-		, rank{rank}
+		: m_suit{suit}
+		, m_rank{rank}
 	{
 	}
-	Suit suit;
-	Rank rank;
+
+	[[nodiscard]] Suit suit() const { return m_suit; }
+	[[nodiscard]] Rank rank() const { return m_rank; }
 
 	static std::vector<Suit> suits()
 	{
 		return {Suit::Clubs, Suit::Diamonds, Suit::Hearts, Suit::Spades};
+	}
+
+	static std::vector<Rank> ranks()
+	{
+		return {Rank::Two,	 Rank::Three, Rank::Four, Rank::Five, Rank::Six,	Rank::Seven, Rank::Eight,
+						Rank::Nine, Rank::Ten,	 Rank::Jack, Rank::Queen, Rank::King, Rank::Ace};
 	}
 
 	bool operator==(const Card&) const = default;
@@ -52,8 +59,12 @@ struct Card {
 	/// Orders by rank only — suit is ignored for ordering purposes.
 	std::strong_ordering operator<=>(const Card& other) const
 	{
-		return static_cast<int>(rank) <=> static_cast<int>(other.rank);
+		return static_cast<int>(m_rank) <=> static_cast<int>(other.m_rank);
 	}
+
+private:
+	Suit m_suit{};
+	Rank m_rank{};
 };
 
 static_assert(std::regular<Card>);
