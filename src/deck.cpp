@@ -7,7 +7,7 @@ const std::vector<Card>& Deck::cards() const
 
 Card Deck::deal()
 {
-  return deal(1).front();
+	return deal(1).front();
 }
 
 std::vector<Card> Deck::deal(size_t num_cards)

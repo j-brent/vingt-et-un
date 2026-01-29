@@ -1,0 +1,21 @@
+name: clang-format check
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'app/**'
+      - 'test/**'
+      - '.clang-format'
+
+jobs:
+  format-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check formatting
+        run: |
+          find src app test -name '*.cpp' -o -name '*.h' | \
+            xargs clang-format --dry-run --Werror

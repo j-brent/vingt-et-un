@@ -12,8 +12,9 @@
 
 class Deck
 {
-  using Rank = Card::Rank;
-  using Suit = Card::Suit;
+	using Rank = Card::Rank;
+	using Suit = Card::Suit;
+
 public:
 	Deck()
 		: m_cards{{{Rank::Two, Suit::Clubs},			{Rank::Three, Suit::Clubs},
@@ -65,7 +66,7 @@ public:
 
 	const std::vector<Card>& cards() const;
 
-  Card deal();
+	Card deal();
 
 	std::vector<Card> deal(size_t num_cards);
 
@@ -89,7 +90,7 @@ inline std::vector<Card::Suit> slice_suits(std::span<const Card> cards)
 {
 	auto suits = std::vector<Card::Suit>{};
 	std::ranges::transform(cards, std::back_inserter(suits),
-								 [](const auto& card) { return card.suit; });
+												 [](const auto& card) { return card.suit; });
 	return suits;
 }
 
@@ -97,6 +98,6 @@ inline std::vector<Card::Rank> slice_face_values(std::span<const Card> cards)
 {
 	auto values = std::vector<Card::Rank>{};
 	std::ranges::transform(cards, std::back_inserter(values),
-								 [](const auto& card) { return card.rank; });
+												 [](const auto& card) { return card.rank; });
 	return values;
 }

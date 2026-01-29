@@ -20,12 +20,8 @@ namespace CardGames
 						break;
 					case Card::Rank::King:
 					case Card::Rank::Queen:
-					case Card::Rank::Jack:
-						total += 10;
-						break;
-					default:
-						total += static_cast<int>(card.rank);
-						break;
+					case Card::Rank::Jack: total += 10; break;
+					default: total += static_cast<int>(card.rank); break;
 				}
 			}
 
@@ -54,10 +50,10 @@ namespace CardGames
 				case Ready:
 					if (play == Deal) {
 						auto deck = current_state.deck();
-						auto player_cards = deck.deal(1);                     // face down
-						auto dealer_cards = deck.deal(1);                     // face down
-						player_cards.emplace_back(deck.deal(1).front());      // face up
-						dealer_cards.emplace_back(deck.deal(1).front());      // face up
+						auto player_cards = deck.deal(1);								 // face down
+						auto dealer_cards = deck.deal(1);								 // face down
+						player_cards.emplace_back(deck.deal(1).front()); // face up
+						dealer_cards.emplace_back(deck.deal(1).front()); // face up
 
 						const auto game_node = [&]() {
 							const auto player = add_em_up(player_cards);
@@ -69,8 +65,8 @@ namespace CardGames
 							return PlayersRound;
 						}();
 
-						history.emplace_back(game_node, PlayersHand{player_cards},
-						                     DealersHand{dealer_cards}, deck);
+						history.emplace_back(game_node, PlayersHand{player_cards}, DealersHand{dealer_cards},
+																 deck);
 						return history.back();
 					}
 					break;
@@ -80,21 +76,17 @@ namespace CardGames
 						auto deck = current_state.deck();
 						auto players_hand = current_state.players_hand();
 						players_hand.add_to_active(deck.deal(1).front());
-						const auto game_node = players_hand.active_is_busted()
-						                       ? GameOverPlayerBusts
-						                       : PlayersRound;
+						const auto game_node =
+							players_hand.active_is_busted() ? GameOverPlayerBusts : PlayersRound;
 
-						history.emplace_back(game_node, players_hand,
-						                     current_state.dealer_hand(), deck);
+						history.emplace_back(game_node, players_hand, current_state.dealer_hand(), deck);
 						return history.back();
-					}
-					else if (play == Stay) {
+					} else if (play == Stay) {
 						history.emplace_back(DealersRound, current_state.players_hand(),
-						                     current_state.dealer_hand(), current_state.deck());
+																 current_state.dealer_hand(), current_state.deck());
 						play_dealer_turn();
 						return history.back();
-					}
-					else if (play == Play::Split) {
+					} else if (play == Play::Split) {
 						if (current_state.can_split(m_config.allow_resplit_aces)) {
 							auto deck = current_state.deck();
 							auto players_hand = current_state.players_hand();
@@ -104,13 +96,12 @@ namespace CardGames
 
 							if (is_aces) {
 								// Both hands complete immediately - go to dealer
-								history.emplace_back(DealersRound, players_hand,
-								                     current_state.dealer_hand(), deck);
+								history.emplace_back(DealersRound, players_hand, current_state.dealer_hand(), deck);
 								play_dealer_turn();
 							} else {
 								// Start playing hand 0
-								history.emplace_back(PlayersSplitRound, players_hand,
-								                     current_state.dealer_hand(), deck);
+								history.emplace_back(PlayersSplitRound, players_hand, current_state.dealer_hand(),
+																		 deck);
 							}
 							return history.back();
 						}
@@ -130,38 +121,35 @@ namespace CardGames
 						}
 
 						if (players_hand.all_busted()) {
-							history.emplace_back(GameOverPlayerBusts, players_hand,
-							                     current_state.dealer_hand(), deck);
+							history.emplace_back(GameOverPlayerBusts, players_hand, current_state.dealer_hand(),
+																	 deck);
 						} else if (players_hand.all_complete()) {
-							history.emplace_back(DealersRound, players_hand,
-							                     current_state.dealer_hand(), deck);
+							history.emplace_back(DealersRound, players_hand, current_state.dealer_hand(), deck);
 							play_dealer_turn();
 						} else {
-							history.emplace_back(PlayersSplitRound, players_hand,
-							                     current_state.dealer_hand(), deck);
+							history.emplace_back(PlayersSplitRound, players_hand, current_state.dealer_hand(),
+																	 deck);
 						}
 						return history.back();
-					}
-					else if (play == Stay) {
+					} else if (play == Stay) {
 						auto players_hand = current_state.players_hand();
 
 						players_hand.mark_active_complete();
 						players_hand.advance_to_next_incomplete();
 
 						if (players_hand.all_busted()) {
-							history.emplace_back(GameOverPlayerBusts, players_hand,
-							                     current_state.dealer_hand(), current_state.deck());
+							history.emplace_back(GameOverPlayerBusts, players_hand, current_state.dealer_hand(),
+																	 current_state.deck());
 						} else if (players_hand.all_complete()) {
-							history.emplace_back(DealersRound, players_hand,
-							                     current_state.dealer_hand(), current_state.deck());
+							history.emplace_back(DealersRound, players_hand, current_state.dealer_hand(),
+																	 current_state.deck());
 							play_dealer_turn();
 						} else {
-							history.emplace_back(PlayersSplitRound, players_hand,
-							                     current_state.dealer_hand(), current_state.deck());
+							history.emplace_back(PlayersSplitRound, players_hand, current_state.dealer_hand(),
+																	 current_state.deck());
 						}
 						return history.back();
-					}
-					else if (play == Play::Split) {
+					} else if (play == Play::Split) {
 						if (current_state.can_split(m_config.allow_resplit_aces)) {
 							auto deck = current_state.deck();
 							auto players_hand = current_state.players_hand();
@@ -172,19 +160,19 @@ namespace CardGames
 							if (is_aces) {
 								if (players_hand.all_busted()) {
 									history.emplace_back(GameOverPlayerBusts, players_hand,
-									                     current_state.dealer_hand(), deck);
+																			 current_state.dealer_hand(), deck);
 								} else if (players_hand.all_complete()) {
-									history.emplace_back(DealersRound, players_hand,
-									                     current_state.dealer_hand(), deck);
+									history.emplace_back(DealersRound, players_hand, current_state.dealer_hand(),
+																			 deck);
 									play_dealer_turn();
 								} else {
 									players_hand.advance_to_next_incomplete();
-									history.emplace_back(PlayersSplitRound, players_hand,
-									                     current_state.dealer_hand(), deck);
+									history.emplace_back(PlayersSplitRound, players_hand, current_state.dealer_hand(),
+																			 deck);
 								}
 							} else {
-								history.emplace_back(PlayersSplitRound, players_hand,
-								                     current_state.dealer_hand(), deck);
+								history.emplace_back(PlayersSplitRound, players_hand, current_state.dealer_hand(),
+																		 deck);
 							}
 							return history.back();
 						}
@@ -199,8 +187,7 @@ namespace CardGames
 				case GameOverPlayerWins:
 				case GameOverDealerBusts:
 				case GameOverDealerWins:
-				case GameOverDraw:
-					break;
+				case GameOverDraw: break;
 			}
 			return current_state;
 		}
@@ -214,8 +201,8 @@ namespace CardGames
 				const auto& dealer = current_state.dealer_hand();
 				const auto hand_value = dealer.value();
 
-				const bool must_hit = hand_value.total < 17 ||
-				                      (hand_value.total == 17 && hand_value.is_soft && m_config.hit_soft_17);
+				const bool must_hit = hand_value.total < 17 || (hand_value.total == 17 &&
+																												hand_value.is_soft && m_config.hit_soft_17);
 
 				if (must_hit) {
 					auto deck = current_state.deck();
@@ -223,8 +210,7 @@ namespace CardGames
 					dealers_hand.add(deck.deal(1).front());
 
 					const auto new_value = dealers_hand.value();
-					const auto game_node = (new_value.total > 21) ? GameOverDealerBusts
-					                                              : DealersRound;
+					const auto game_node = (new_value.total > 21) ? GameOverDealerBusts : DealersRound;
 
 					history.emplace_back(game_node, current_state.players_hand(), dealers_hand, deck);
 				} else {
@@ -238,8 +224,8 @@ namespace CardGames
 						else
 							return GameOverDraw;
 					}();
-					history.emplace_back(game_node, current_state.players_hand(),
-					                     current_state.dealer_hand(), current_state.deck());
+					history.emplace_back(game_node, current_state.players_hand(), current_state.dealer_hand(),
+															 current_state.deck());
 				}
 			}
 		}

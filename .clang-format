@@ -1,4 +1,4 @@
-﻿---
+---
 BasedOnStyle: Mozilla
 AlignEscapedNewlines: Left
 AlignOperands: 'true'
@@ -47,7 +47,7 @@ SpacesInAngles: 'false'
 SpacesInCStyleCastParentheses: 'false'
 SpacesInParentheses: 'false'
 SpacesInSquareBrackets: 'false'
-Standard: Cpp11
+Standard: c++20
 TabWidth: '2'
 UseTab: Always
 
