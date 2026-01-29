@@ -4,9 +4,9 @@ This document captures design decisions evident in the codebase.
 
 ## Regular Types Enforcement
 
-**Location:** `src/CompileTimeChecks.h:24-33`, used in `src/card.h:57`, `src/deck.h:94`, `src/blackjack-game.h:203-204`
+**Location:** `src/card.h`, `src/deck.h`, `src/blackjack-game.h`
 
-**Decision:** All core value types (`Card`, `Deck`, `GameState`) use `static_assert(is_regular<T>::value)` to enforce regular type semantics at compile time.
+**Decision:** All core value types (`Card`, `Deck`, `GameState`) use `static_assert(std::regular<T>)` (C++20 `<concepts>`) to enforce regular type semantics at compile time.
 
 **What is a Regular Type:** A type that is:
 - Default constructible
@@ -16,7 +16,7 @@ This document captures design decisions evident in the codebase.
 - Move assignable
 - Equality comparable
 
-**Rationale:** Based on Eric Niebler's "C++11 Library Design" talk (referenced in `CompileTimeChecks.h:5-7`). Regular types behave predictably and can be used in standard containers and algorithms without surprises.
+**Rationale:** Based on Eric Niebler's "C++11 Library Design" talk. Regular types behave predictably and can be used in standard containers and algorithms without surprises.
 
 **Source:** https://youtu.be/zgOF4NrQllo?t=37m15s
 
@@ -43,8 +43,22 @@ This document captures design decisions evident in the codebase.
 **Decision:** Rank enum values are assigned explicit integers (Two=2 through Ace=14).
 
 **Rationale:** Enables:
-- Direct comparison via `operator<` (`src/card.h:47-50`)
+- Direct comparison via `operator<=>` (rank-only ordering)
 - Conversion to blackjack values in `add_em_up()` via `static_cast<int>(card.rank)` for 2-10
+
+## Card Ordering: Rank Only
+
+**Location:** `src/card.h` — `operator<=>` and `operator==`
+
+**Decision:** Card ordering (`<`, `<=`, `>`, `>=`) compares by rank only. Suit is ignored for ordering purposes. Card equality (`==`, `!=`) compares both rank and suit.
+
+**Evidence:**
+- `operator<=>(const Card& other)` compares `static_cast<int>(rank) <=> static_cast<int>(other.rank)`
+- `operator==(const Card&) const = default` compares all members (suit and rank)
+
+**Rationale:** In standard card games, when comparing which card is higher, the suit is not taken into consideration. Only rank determines relative value. This means two cards of the same rank but different suits are equivalent under ordering but not equal — consistent with how card games treat them.
+
+**Note:** This means `Card` satisfies `std::regular` but not `std::totally_ordered`, since `(a <=> b) == 0` does not imply `a == b`.
 
 ## Nested Enums in Card
 

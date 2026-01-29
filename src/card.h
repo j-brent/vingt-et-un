@@ -4,6 +4,10 @@
 #include <concepts>
 #include <vector>
 
+/// Playing card value type.
+/// Equality (==) compares both rank and suit. Ordering (<, <=, >, >=) compares
+/// by rank only — suit is not considered when determining which card is higher,
+/// matching standard card game conventions.
 struct Card {
 
 enum class Suit { Clubs, Diamonds, Hearts, Spades };
@@ -45,6 +49,7 @@ enum class Rank {
 
 	bool operator==(const Card&) const = default;
 
+	/// Orders by rank only — suit is ignored for ordering purposes.
 	std::strong_ordering operator<=>(const Card& other) const
 	{
 		return static_cast<int>(rank) <=> static_cast<int>(other.rank);
