@@ -16,9 +16,7 @@ This document captures design decisions evident in the codebase.
 - Move assignable
 - Equality comparable
 
-**Rationale:** Based on Eric Niebler's "C++11 Library Design" talk. Regular types behave predictably and can be used in standard containers and algorithms without surprises.
-
-**Source:** https://youtu.be/zgOF4NrQllo?t=37m15s
+**Rationale:** Regular types behave predictably and can be used in standard containers and algorithms without surprises.
 
 ## Immutable State with History
 
