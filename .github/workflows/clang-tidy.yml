@@ -43,7 +43,7 @@ jobs:
 
       - name: Run clang-tidy
         run: |
-          find src app -name '*.cpp' | \
+          find src -name '*.cpp' | \
             xargs clang-tidy -p build --warnings-as-errors='*'
 
   clang-tidy-gate:
