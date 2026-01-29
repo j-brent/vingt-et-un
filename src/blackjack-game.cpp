@@ -3,10 +3,8 @@
 #include <numeric>
 #include <span>
 
-namespace CardGames
+namespace CardGames::BlackJack
 {
-	namespace BlackJack
-	{
 		HandValue calculate_hand_value(std::span<const Card> hand)
 		{
 			int total = 0;
@@ -32,7 +30,7 @@ namespace CardGames
 				--soft_ace_count;
 			}
 
-			return {total, soft_ace_count > 0, soft_ace_count};
+			return {.total = total, .is_soft = soft_ace_count > 0, .soft_ace_count = soft_ace_count};
 		}
 
 		int add_em_up(std::span<const Card> hand)
@@ -58,10 +56,12 @@ namespace CardGames
 						const auto game_node = [&]() {
 							const auto player = add_em_up(player_cards);
 							const auto dealer = add_em_up(dealer_cards);
-							if (player == 21)
+							if (player == 21) {
 								return GameOverPlayerWins;
-							if (dealer == 21)
+							}
+							if (dealer == 21) {
 								return GameOverDealerWins;
+							}
 							return PlayersRound;
 						}();
 
@@ -179,10 +179,7 @@ namespace CardGames
 					}
 					break;
 
-				case DealersRound:
-					// DealersRound is handled automatically by play_dealer_turn()
-					break;
-
+				case DealersRound: // handled automatically by play_dealer_turn()
 				case GameOverPlayerBusts:
 				case GameOverPlayerWins:
 				case GameOverDealerBusts:
@@ -217,17 +214,17 @@ namespace CardGames
 					const auto player_total = current_state.players_hand().active_total();
 					const auto dealer_total = hand_value.total;
 					const auto game_node = [&]() {
-						if (player_total > dealer_total)
+						if (player_total > dealer_total) {
 							return GameOverPlayerWins;
-						else if (dealer_total > player_total)
+						}
+						if (dealer_total > player_total) {
 							return GameOverDealerWins;
-						else
-							return GameOverDraw;
+						}
+						return GameOverDraw;
 					}();
 					history.emplace_back(game_node, current_state.players_hand(), current_state.dealer_hand(),
 															 current_state.deck());
 				}
 			}
 		}
-	} // namespace BlackJack
-} // namespace CardGames
+} // namespace CardGames::BlackJack

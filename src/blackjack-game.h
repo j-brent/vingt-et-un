@@ -7,10 +7,8 @@
 #include <optional>
 #include <span>
 
-namespace CardGames
+namespace CardGames::BlackJack
 {
-	namespace BlackJack
-	{
 		/// Result of calculating a hand's blackjack value
 		struct HandValue {
 			int total;					///< Final calculated total (soft aces adjusted)
@@ -221,5 +219,4 @@ namespace CardGames
 
 		int add_em_up(std::span<const Card> hand);
 
-	} // namespace BlackJack
-} // namespace CardGames
+} // namespace CardGames::BlackJack

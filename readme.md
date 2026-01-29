@@ -59,6 +59,28 @@ windeployqt --qmldir app/qml build-win-qml/Release/blackjack-qml.exe
 ctest --preset windows-release   # or linux-release
 ```
 
+## Static Analysis
+
+[clang-tidy](https://clang.llvm.org/extra/clang-tidy/) is configured via `.clang-tidy` and enforced on PRs.
+
+**Run on-demand (requires Ninja and a compile database):**
+```sh
+# Windows (from a VS Developer Command Prompt)
+cmake --preset windows-ninja
+cmake --build --preset windows-ninja-release
+clang-tidy -p build-win-ninja src/*.cpp
+
+# Linux
+cmake --preset linux
+clang-tidy -p build-linux src/*.cpp
+```
+
+**Run automatically during builds:**
+```sh
+cmake --preset windows-ninja -DENABLE_CLANG_TIDY=ON
+cmake --build --preset windows-ninja-release
+```
+
 ## Project Structure
 
 ```
