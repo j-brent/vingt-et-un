@@ -30,7 +30,7 @@ namespace blackjack_io
 
 	void writeline(const std::string& line)
 	{
-		std::cout << line << std::endl;
+		std::cout << line << '\n';
 	}
 
 	CardGames::BlackJack::Game::Play get_move(bool can_split)
@@ -65,7 +65,7 @@ namespace blackjack_io
 
 	void print_all_cards_face_up(const CardGames::BlackJack::GameState& state)
 	{
-		std::cout << std::endl;
+		std::cout << '\n';
 		std::cout << "Dealer: ";
 		print_hand(state.dealer_hand().cards());
 		std::cout << "Player: ";
@@ -86,7 +86,7 @@ namespace blackjack_io
 			print_hand_hide_some(dealers_hand, 1);
 			std::cout << "Player: ";
 			print_hand(players_hand);
-			std::cout << "(" << state.players_hand().active_total() << ")" << std::endl;
+			std::cout << "(" << state.players_hand().active_total() << ")" << '\n';
 		} else if (state.node() == PlayersSplitRound) {
 			const auto& dealers_hand = state.dealer_hand().cards();
 			std::cout << "Dealer: ";
@@ -104,7 +104,7 @@ namespace blackjack_io
 				}
 				std::cout << ": ";
 				print_hand(hand.cards);
-				std::cout << "    (" << calculate_hand_value(hand.cards).total << ")" << std::endl;
+				std::cout << "    (" << calculate_hand_value(hand.cards).total << ")" << '\n';
 			}
 		} else if (state.node() == GameOverPlayerWins) {
 			print_all_cards_face_up(state);
@@ -131,7 +131,7 @@ namespace blackjack_io
 			assert(player == dealer);
 			writeline(std::format("Draw, {} up.", dealer));
 		} else {
-			std::cout << "Unknown game node" << std::endl;
+			std::cout << "Unknown game node" << '\n';
 		}
 	}
 } // namespace blackjack_io
@@ -141,7 +141,7 @@ void play_blackjack(CardGames::BlackJack::BlackjackConfig config = {})
 	using namespace CardGames;
 	using enum BlackJack::GameNode;
 
-	auto game = BlackJack::Game{config};
+	auto game = BlackJack::Game{std::move(config)};
 	blackjack_io::print_game_state(game.state());
 
 	auto state = game.next(BlackJack::Game::Play::Deal);

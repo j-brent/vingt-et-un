@@ -2,6 +2,7 @@
 
 #include <compare>
 #include <concepts>
+#include <cstdint>
 #include <vector>
 
 /// Playing card value type.
@@ -10,9 +11,9 @@
 /// matching standard card game conventions.
 struct Card {
 
-	enum class Suit { Clubs, Diamonds, Hearts, Spades };
+	enum class Suit : std::uint8_t { Clubs, Diamonds, Hearts, Spades };
 
-	enum class Rank {
+	enum class Rank : std::uint8_t {
 		Two = 2,
 		Three = 3,
 		Four = 4,
@@ -59,7 +60,7 @@ struct Card {
 	/// Orders by rank only — suit is ignored for ordering purposes.
 	std::strong_ordering operator<=>(const Card& other) const
 	{
-		return static_cast<int>(m_rank) <=> static_cast<int>(other.m_rank);
+		return static_cast<std::uint8_t>(m_rank) <=> static_cast<std::uint8_t>(other.m_rank);
 	}
 
 private:

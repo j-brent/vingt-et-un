@@ -8,10 +8,10 @@
 namespace
 {
 	template<typename Function>
-	void repeat(size_t num_times, Function&& f)
+	void repeat(size_t num_times, const Function& func)
 	{
-		for (auto i = 0; i < num_times; ++i) {
-			f();
+		for (size_t i = 0; i < num_times; ++i) {
+			func();
 		}
 	}
 } // namespace
@@ -63,9 +63,9 @@ void print(const Deck& deck)
 {
 	const auto& cards = deck.cards();
 	for (const auto& card : cards) {
-		std::cout << card << std::endl;
+		std::cout << card << '\n';
 	}
-	std::cout << std::endl;
+	std::cout << '\n';
 }
 
 // unicode printing
@@ -136,10 +136,10 @@ void print_terse(const Deck& deck)
 	// std::wcout << L"Testing unicode -- English -- Ελληνικά -- Español." <<
 	// std::endl;  std::wcout << L"♠ ♣ ♥ ♦" << std::endl;
 	for (const auto& card : deck.cards()) {
-		std::wcout << card << std::endl;
+		std::wcout << card << L'\n';
 	}
 	_setmode(_fileno(stdout), old_mode);
-	std::cout << std::endl;
+	std::cout << '\n';
 	// std::cout << std::hex << old_mode << std::endl;
 	// std::cout << std::hex << _O_U16TEXT << std::endl;
 
@@ -162,13 +162,13 @@ void print_hand(std::span<const Card> hand)
 #ifdef _WIN32
 	_setmode(_fileno(stdout), old_mode);
 #endif
-	std::cout << std::endl;
+	std::cout << '\n';
 }
 
 void print_hidden_hand(size_t num_cards)
 {
 	repeat(num_cards, []() { std::cout << " **  "; });
-	std::cout << std::endl;
+	std::cout << '\n';
 }
 
 void print_hand_hide_some(std::span<const Card> hand, size_t num_to_hide)
@@ -183,5 +183,5 @@ void print_hand_hide_some(std::span<const Card> hand, size_t num_to_hide)
 #ifdef _WIN32
 	_setmode(_fileno(stdout), old_mode);
 #endif
-	std::cout << std::endl;
+	std::cout << '\n';
 }

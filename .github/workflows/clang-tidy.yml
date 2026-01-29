@@ -1,0 +1,65 @@
+name: clang-tidy check
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      should_check: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            code:
+              - 'src/**'
+              - 'app/**'
+              - 'test/**'
+              - '.clang-tidy'
+
+  tidy-check:
+    needs: changes
+    if: needs.changes.outputs.should_check == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install clang-tidy
+        run: sudo apt-get update && sudo apt-get install -y clang-tidy
+
+      - name: Configure CMake
+        run: >
+          cmake -B build
+          -DCMAKE_CXX_COMPILER=clang++
+          -DCMAKE_C_COMPILER=clang
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+          -DENABLE_TESTING=OFF
+
+      - name: Run clang-tidy
+        run: |
+          find src -name '*.cpp' | \
+            xargs clang-tidy -p build --warnings-as-errors='*'
+
+  clang-tidy-gate:
+    if: always()
+    needs: [changes, tidy-check]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check tidy result
+        run: |
+          if [[ "${{ needs.changes.outputs.should_check }}" != "true" ]]; then
+            echo "clang-tidy check skipped — no relevant file changes."
+            exit 0
+          fi
+          if [[ "${{ needs.tidy-check.result }}" == "success" ]]; then
+            echo "clang-tidy check passed."
+            exit 0
+          fi
+          echo "clang-tidy check failed."
+          exit 1

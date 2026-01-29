@@ -58,6 +58,21 @@
         "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++"
       }
+    },
+    {
+      "name": "windows-ninja",
+      "displayName": "Windows Ninja (for clang-tidy)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-win-ninja",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "cl",
+        "CMAKE_CXX_COMPILER": "cl"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
     }
   ],
   "buildPresets": [
@@ -109,6 +124,16 @@
     {
       "name": "linux-clang-qml-debug",
       "configurePreset": "linux-clang-qml",
+      "configuration": "Debug"
+    },
+    {
+      "name": "windows-ninja-release",
+      "configurePreset": "windows-ninja",
+      "configuration": "Release"
+    },
+    {
+      "name": "windows-ninja-debug",
+      "configurePreset": "windows-ninja",
       "configuration": "Debug"
     }
   ],

@@ -56,6 +56,7 @@ public:
 	{
 	}
 
+	~Deck() = default;
 	Deck(const Deck&) = default;
 	Deck(Deck&&) = default;
 
@@ -64,15 +65,15 @@ public:
 
 	bool operator==(const Deck&) const = default;
 
-	const std::vector<Card>& cards() const;
+	[[nodiscard]] const std::vector<Card>& cards() const;
 
 	Card deal();
 
 	std::vector<Card> deal(size_t num_cards);
 
 	using const_iterator = std::vector<Card>::const_iterator;
-	const_iterator begin() const { return m_cards.cbegin(); }
-	const_iterator end() const { return m_cards.cend(); }
+	[[nodiscard]] const_iterator begin() const { return m_cards.cbegin(); }
+	[[nodiscard]] const_iterator end() const { return m_cards.cend(); }
 
 	using iterator = std::vector<Card>::iterator;
 	iterator begin() { return m_cards.begin(); }
