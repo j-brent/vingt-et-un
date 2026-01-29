@@ -15,13 +15,14 @@ Tests verify that `Card` behaves as a regular value type with correct constructi
 | `operator<=>` — lower vs higher rank, same rank different suit, irreflexive, full 13-rank transitivity chain | Boundary analysis | [L128](card_tests.cpp#L128) |
 | Boundary ranks (Two=2, Ace=14, Ten/Jack boundary, face card progression) | Boundary analysis | [L190](card_tests.cpp#L190) |
 | `Card::suits()` — count, order, distinctness | Coverage | [L249](card_tests.cpp#L249) |
-| Copy construction and copy assignment | Regular type semantics | [L284](card_tests.cpp#L284) |
-| `std::ranges::sort`, `std::ranges::find`, `std::ranges::count` with Cards | Container interop | [L319](card_tests.cpp#L319) |
-| `operator<=>` vs `operator==` consistency (same rank, different suit) | Error guessing | [L389](card_tests.cpp#L389) |
-| All 13 rank enum underlying values | Exhaustive | [L417](card_tests.cpp#L417) |
-| 13 ranks in one suit — distinctness and sort order | Exhaustive | [L441](card_tests.cpp#L441) |
-| 4 suits with same rank — distinct under `==`, equivalent under `<` | Exhaustive | [L477](card_tests.cpp#L477) |
-| Default construction, move construction, move assignment | Regular type semantics | [L516](card_tests.cpp#L516) |
+| `Card::ranks()` — count, order, distinctness | Coverage | [L284](card_tests.cpp#L284) |
+| Copy construction and copy assignment | Regular type semantics | [L328](card_tests.cpp#L328) |
+| `std::ranges::sort`, `std::ranges::find`, `std::ranges::count` with Cards | Container interop | [L363](card_tests.cpp#L363) |
+| `operator<=>` vs `operator==` consistency (same rank, different suit) | Error guessing | [L433](card_tests.cpp#L433) |
+| All 13 rank enum underlying values | Exhaustive | [L461](card_tests.cpp#L461) |
+| 13 ranks in one suit — distinctness and sort order | Exhaustive | [L485](card_tests.cpp#L485) |
+| 4 suits with same rank — distinct under `==`, equivalent under `<` | Exhaustive | [L521](card_tests.cpp#L521) |
+| Default construction, move construction, move assignment | Regular type semantics | [L560](card_tests.cpp#L560) |
 
 ## Deck
 

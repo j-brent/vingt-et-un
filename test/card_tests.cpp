@@ -278,6 +278,50 @@ SCENARIO("Card::suits() static method")
 }
 
 // ============================================================================
+// Rank enumeration
+// ============================================================================
+
+SCENARIO("Card::ranks() static method")
+{
+	GIVEN("The result of Card::ranks()")
+	{
+		const auto ranks = Card::ranks();
+
+		THEN("It returns exactly 13 ranks")
+		{
+			CHECK(ranks.size() == 13);
+		}
+
+		THEN("It contains all thirteen ranks in order: Two through Ace")
+		{
+			REQUIRE(ranks.size() == 13);
+			CHECK(ranks[0] == Rank::Two);
+			CHECK(ranks[1] == Rank::Three);
+			CHECK(ranks[2] == Rank::Four);
+			CHECK(ranks[3] == Rank::Five);
+			CHECK(ranks[4] == Rank::Six);
+			CHECK(ranks[5] == Rank::Seven);
+			CHECK(ranks[6] == Rank::Eight);
+			CHECK(ranks[7] == Rank::Nine);
+			CHECK(ranks[8] == Rank::Ten);
+			CHECK(ranks[9] == Rank::Jack);
+			CHECK(ranks[10] == Rank::Queen);
+			CHECK(ranks[11] == Rank::King);
+			CHECK(ranks[12] == Rank::Ace);
+		}
+
+		THEN("All ranks are distinct")
+		{
+			for (size_t i = 0; i < ranks.size(); ++i) {
+				for (size_t j = i + 1; j < ranks.size(); ++j) {
+					CHECK_FALSE(ranks[i] == ranks[j]);
+				}
+			}
+		}
+	}
+}
+
+// ============================================================================
 // Copy semantics (regular type)
 // ============================================================================
 

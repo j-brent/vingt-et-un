@@ -50,7 +50,7 @@ struct Card {
 
 	static std::vector<Rank> ranks()
 	{
-		return {Rank::Two,	 Rank::Three, Rank::Four, Rank::Five, Rank::Six,	Rank::Seven, Rank::Eight,
+		return {Rank::Two,	Rank::Three, Rank::Four, Rank::Five,	Rank::Six,	Rank::Seven, Rank::Eight,
 						Rank::Nine, Rank::Ten,	 Rank::Jack, Rank::Queen, Rank::King, Rank::Ace};
 	}
 
