@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python -c \"import sys,json; d=json.load(sys.stdin); fp=d.get('tool_input',{}).get('file_path',''); exit(0) if not fp.endswith(('.cpp','.h')) else None; import subprocess; subprocess.run(['clang-format','-i',fp])\""
+          }
+        ]
+      }
+    ]
+  }
+}
