@@ -177,8 +177,7 @@ void print_hand_hide_some(std::span<const Card> hand, size_t num_to_hide)
 #ifdef _WIN32
 	auto old_mode = _setmode(_fileno(stdout), _O_U16TEXT);
 #endif
-	for (auto i = num_to_hide; i < hand.size(); ++i) {
-		const auto& card = hand[i];
+	for (const auto& card : hand.subspan(num_to_hide)) {
 		std::wcout << card << L"  ";
 	}
 #ifdef _WIN32
