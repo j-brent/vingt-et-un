@@ -20,7 +20,7 @@ This document captures design decisions evident in the codebase.
 
 ## Immutable State with History
 
-**Location:** `src/blackjack-game.h:154-183`, `src/blackjack-game.h:215`
+**Location:** `src/blackjack-game.h:156-185`, `src/blackjack-game.h:219`
 
 **Decision:** `GameState` is immutable. The `Game` class maintains a `vector<GameState>` history, appending new states rather than mutating.
 
@@ -42,7 +42,7 @@ This document captures design decisions evident in the codebase.
 
 **Rationale:** Enables:
 - Direct comparison via `operator<=>` (rank-only ordering)
-- Conversion to blackjack values in `add_em_up()` via `static_cast<int>(card.rank)` for 2-10
+- Conversion to blackjack values in `add_em_up()` via `static_cast<int>(card.rank())` for 2-10
 
 ## Card Ordering: Rank Only
 
@@ -51,16 +51,29 @@ This document captures design decisions evident in the codebase.
 **Decision:** Card ordering (`<`, `<=`, `>`, `>=`) compares by rank only. Suit is ignored for ordering purposes. Card equality (`==`, `!=`) compares both rank and suit.
 
 **Evidence:**
-- `operator<=>(const Card& other)` compares `static_cast<int>(rank) <=> static_cast<int>(other.rank)`
-- `operator==(const Card&) const = default` compares all members (suit and rank)
+- `operator<=>(const Card& other)` compares `static_cast<int>(m_rank) <=> static_cast<int>(other.m_rank)`
+- `operator==(const Card&) const = default` compares all members (m_suit and m_rank)
 
 **Rationale:** In standard card games, when comparing which card is higher, the suit is not taken into consideration. Only rank determines relative value. This means two cards of the same rank but different suits are equivalent under ordering but not equal — consistent with how card games treat them.
 
 **Note:** This means `Card` satisfies `std::regular` but not `std::totally_ordered`, since `(a <=> b) == 0` does not imply `a == b`.
 
+## Card Member Encapsulation
+
+**Location:** `src/card.h:43-44`, `src/card.h:65-67`
+
+**Decision:** `suit` and `rank` are private data members (`m_suit`, `m_rank`) with value-initialized defaults and read-only accessor methods (`suit()`, `rank()`). A `ranks()` static method mirrors the existing `suits()` method.
+
+**Evidence:**
+- `Suit m_suit{};` and `Rank m_rank{};` — value-initialized to avoid undefined behavior on default construction
+- `[[nodiscard]] Suit suit() const` and `[[nodiscard]] Rank rank() const` — read-only accessors
+- No mutator methods — Cards are effectively immutable after construction
+
+**Rationale:** Playing cards should not change after creation. Private members prevent partial mutation (e.g., changing rank without suit). Value initialization eliminates undefined behavior when using `Card{}`, which is required for `static_assert(std::regular<Card>)` to be meaningful.
+
 ## Nested Enums in Card
 
-**Location:** `src/card.h:11-57`
+**Location:** `src/card.h:11-68`
 
 **Decision:** `Suit` and `Rank` enums are nested inside the `Card` struct.
 
@@ -88,7 +101,7 @@ This document captures design decisions evident in the codebase.
 
 ## Soft Ace Handling
 
-**Location:** `src/blackjack-game.h:15-21`, `src/blackjack-game.cpp:10-40`
+**Location:** `src/blackjack-game.h:15-21`, `src/blackjack-game.cpp:10-36`
 
 **Decision:** Aces are initially counted as 11 but automatically convert to 1 when the hand would bust.
 
@@ -118,7 +131,7 @@ This document captures design decisions evident in the codebase.
 
 ## Split Tracking in PlayersHand
 
-**Location:** `src/blackjack-game.h:48-140`
+**Location:** `src/blackjack-game.h:51-142`
 
 **Decision:** Split state is managed entirely within `PlayersHand` class rather than in `GameState` or `Game`.
 
@@ -131,7 +144,7 @@ This document captures design decisions evident in the codebase.
 
 ## Split Aces Auto-Complete
 
-**Location:** `src/blackjack-game.h:89-90`, `src/blackjack-game.h:96-97`
+**Location:** `src/blackjack-game.h:91-92`, `src/blackjack-game.h:98-99`
 
 **Decision:** When aces are split, both resulting hands are immediately marked complete after receiving one card each.
 
@@ -143,7 +156,7 @@ This document captures design decisions evident in the codebase.
 
 ## Resplit Limit
 
-**Location:** `src/blackjack-game.h:55`, `src/blackjack-game.h:77`
+**Location:** `src/blackjack-game.h:59`, `src/blackjack-game.h:78`
 
 **Decision:** Maximum of 3 splits allowed (4 total hands).
 
@@ -153,7 +166,7 @@ This document captures design decisions evident in the codebase.
 
 ## Configurable Game Rules
 
-**Location:** `src/blackjack-game.h:188-192`
+**Location:** `src/blackjack-game.h:190-194`
 
 **Decision:** Game rules are configurable via `BlackjackConfig` struct passed to `Game` constructor.
 
@@ -166,7 +179,7 @@ This document captures design decisions evident in the codebase.
 
 ## Dealer Auto-Play
 
-**Location:** `src/blackjack-game.cpp:208-245`
+**Location:** `src/blackjack-game.cpp:195-231`
 
 **Decision:** Dealer's turn plays automatically without user input.
 

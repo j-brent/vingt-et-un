@@ -40,7 +40,7 @@ test/
 
 ```
 (global)
-├── Card                    # struct with nested Suit/Rank enums
+├── Card                    # struct with nested Suit/Rank enums, private members with accessors
 ├── Deck                    # class
 ├── shuffle()               # free function
 ├── slice_suits()           # free function
@@ -64,12 +64,15 @@ test/
 ```mermaid
 classDiagram
     class Card {
-        +Suit suit
-        +Rank rank
+        -Suit m_suit
+        -Rank m_rank
         +Card()
         +Card(Rank, Suit)
         +Card(Suit, Rank)
+        +suit() Suit
+        +rank() Rank
         +suits()$ vector~Suit~
+        +ranks()$ vector~Rank~
     }
 
     class Card_Suit {
@@ -270,15 +273,15 @@ Main.qml (ApplicationWindow)
 
 ## File References
 
-- Card definition: `src/card.h:11-57`
+- Card definition: `src/card.h:11-68`
 - Deck definition: `src/deck.h:13-103`
 - HandValue struct: `src/blackjack-game.h:15-21`
-- DealersHand class: `src/blackjack-game.h:28-45`
-- PlayersHand class: `src/blackjack-game.h:48-140`
-- GameNode enum: `src/blackjack-game.h:142-152`
-- GameState struct: `src/blackjack-game.h:154-185`
-- BlackjackConfig struct: `src/blackjack-game.h:188-192`
-- Game class: `src/blackjack-game.h:194-216`
-- Game::next() implementation: `src/blackjack-game.cpp:47-206`
-- play_dealer_turn(): `src/blackjack-game.cpp:208-245`
+- DealersHand class: `src/blackjack-game.h:28-48`
+- PlayersHand class: `src/blackjack-game.h:51-142`
+- GameNode enum: `src/blackjack-game.h:144-154`
+- GameState struct: `src/blackjack-game.h:156-185`
+- BlackjackConfig struct: `src/blackjack-game.h:190-194`
+- Game class: `src/blackjack-game.h:196-220`
+- Game::next() implementation: `src/blackjack-game.cpp:43-193`
+- play_dealer_turn(): `src/blackjack-game.cpp:195-231`
 - GameController: `app/qml/GameController.h:12-68`
