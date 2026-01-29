@@ -17,7 +17,6 @@ src/
 ├── deck.h / deck.cpp        # Deck container and operations
 ├── blackjack-game.h / blackjack-game.cpp  # Game state machine
 ├── streaming.h / streaming.cpp  # I/O utilities
-├── CompileTimeChecks.h      # Type trait utilities
 ├── test-decks.h / test-decks.cpp  # Deterministic decks for testing
 └── main.cpp                 # Console game loop and I/O handling
 
@@ -271,15 +270,15 @@ Main.qml (ApplicationWindow)
 
 ## File References
 
-- Card definition: `src/card.h:7-57`
-- Deck definition: `src/deck.h:12-96`
-- HandValue struct: `src/blackjack-game.h:13-23`
-- DealersHand class: `src/blackjack-game.h:29-49`
-- PlayersHand class: `src/blackjack-game.h:51-152`
-- GameNode enum: `src/blackjack-game.h:154-164`
-- GameState struct: `src/blackjack-game.h:166-204`
-- BlackjackConfig struct: `src/blackjack-game.h:206-211`
-- Game class: `src/blackjack-game.h:213-235`
-- Game::next() implementation: `src/blackjack-game.cpp:46-202`
-- play_dealer_turn(): `src/blackjack-game.cpp:204-239`
+- Card definition: `src/card.h:11-57`
+- Deck definition: `src/deck.h:13-103`
+- HandValue struct: `src/blackjack-game.h:15-21`
+- DealersHand class: `src/blackjack-game.h:28-45`
+- PlayersHand class: `src/blackjack-game.h:48-140`
+- GameNode enum: `src/blackjack-game.h:142-152`
+- GameState struct: `src/blackjack-game.h:154-185`
+- BlackjackConfig struct: `src/blackjack-game.h:188-192`
+- Game class: `src/blackjack-game.h:194-216`
+- Game::next() implementation: `src/blackjack-game.cpp:47-206`
+- play_dealer_turn(): `src/blackjack-game.cpp:208-245`
 - GameController: `app/qml/GameController.h:12-68`

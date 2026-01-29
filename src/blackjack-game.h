@@ -1,9 +1,11 @@
 #pragma once
 
-#include "CompileTimeChecks.h"
 #include "deck.h"
 
+#include <algorithm>
+#include <concepts>
 #include <optional>
+#include <span>
 
 namespace CardGames
 {
@@ -14,17 +16,13 @@ namespace CardGames
 			int total;           ///< Final calculated total (soft aces adjusted)
 			bool is_soft;        ///< True if an Ace is currently counted as 11
 			int soft_ace_count;  ///< Number of Aces counted as 11
-		};
 
-		inline bool operator==(const HandValue& lhs, const HandValue& rhs) {
-			return lhs.total == rhs.total &&
-			       lhs.is_soft == rhs.is_soft &&
-			       lhs.soft_ace_count == rhs.soft_ace_count;
-		}
+			bool operator==(const HandValue&) const = default;
+		};
 
 		/// Calculate hand value with soft ace logic
 		/// Aces count as 11 unless that would cause a bust, then they count as 1
-		HandValue calculate_hand_value(const std::vector<Card>& hand);
+		HandValue calculate_hand_value(std::span<const Card> hand);
 
 		/// Dealer's hand - simple container, no split logic
 		class DealersHand {
@@ -40,9 +38,7 @@ namespace CardGames
 			int total() const { return value().total; }
 			bool is_soft() const { return value().is_soft; }
 
-			bool operator==(const DealersHand& other) const {
-				return m_cards == other.m_cards;
-			}
+			bool operator==(const DealersHand&) const = default;
 
 		private:
 			std::vector<Card> m_cards;
@@ -58,13 +54,7 @@ namespace CardGames
 				bool is_complete = false;
 				int split_count = 0;
 
-				bool operator==(const SingleHand& other) const {
-				return cards == other.cards &&
-				       is_from_split == other.is_from_split &&
-				       is_from_split_aces == other.is_from_split_aces &&
-				       is_complete == other.is_complete &&
-				       split_count == other.split_count;
-			}
+				bool operator==(const SingleHand&) const = default;
 			};
 
 			PlayersHand() = default;
@@ -125,12 +115,12 @@ namespace CardGames
 			}
 
 			bool all_complete() const {
-				return std::all_of(m_hands.begin(), m_hands.end(),
+				return std::ranges::all_of(m_hands,
 				                   [](const SingleHand& h) { return h.is_complete; });
 			}
 
 			bool all_busted() const {
-				return std::all_of(m_hands.begin(), m_hands.end(),
+				return std::ranges::all_of(m_hands,
 				                   [](const SingleHand& h) {
 					                   return h.is_complete &&
 					                          calculate_hand_value(h.cards).total > 21;
@@ -142,9 +132,7 @@ namespace CardGames
 			size_t active_index() const { return m_active_index; }
 			const std::vector<SingleHand>& all_hands() const { return m_hands; }
 
-			bool operator==(const PlayersHand& other) const {
-				return m_hands == other.m_hands && m_active_index == other.m_active_index;
-			}
+			bool operator==(const PlayersHand&) const = default;
 
 		private:
 			std::vector<SingleHand> m_hands = {SingleHand{}};
@@ -185,6 +173,8 @@ namespace CardGames
 				return m_players_hand.can_split(allow_resplit_aces);
 			}
 
+			bool operator==(const GameState&) const = default;
+
 		private:
 			GameNode m_node = GameNode::Ready;
 			PlayersHand m_players_hand;
@@ -192,16 +182,7 @@ namespace CardGames
 			Deck m_deck = {shuffle(Deck{})};
 		};
 
-		inline bool operator==(const GameState& lhs, const GameState& rhs)
-		{
-			return lhs.node() == rhs.node() &&
-			       lhs.players_hand() == rhs.players_hand() &&
-			       lhs.dealer_hand() == rhs.dealer_hand() &&
-			       lhs.deck() == rhs.deck();
-		}
-
-		static_assert(is_regular<GameState>::value,
-									"User-defined type GameState is not a regular type.");
+		static_assert(std::regular<GameState>);
 
 		/// Configuration for blackjack game rules
 		struct BlackjackConfig {
@@ -234,7 +215,7 @@ namespace CardGames
 		std::vector<GameState> history;
 	};
 
-	int add_em_up(const std::vector<Card>& hand);
+	int add_em_up(std::span<const Card> hand);
 
 	} // namespace BlackJack
 } // namespace CardGames

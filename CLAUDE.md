@@ -115,7 +115,7 @@ C++ blackjack game with a `cardgames` static library, `blackjack` console execut
 - `HandView.qml` - Row of cards using Repeater
 
 **Design patterns**:
-- All core types use `static_assert(is_regular<T>)` to enforce regular type semantics (copyable, comparable)
+- All core types use `static_assert(std::regular<T>)` to enforce regular type semantics (copyable, comparable)
 - Game uses history-based state tracking (vector of GameState)
 - Player actions: `Deal`, `Hit`, `Stay`
 - Blackjack (21 on initial deal) immediately wins/loses - no PlayersRound

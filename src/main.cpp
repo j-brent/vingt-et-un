@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <format>
 #include <iostream>
 #include <numeric>
 #include <optional>
@@ -38,7 +39,7 @@ namespace blackjack_io
 		auto user_input_is_valid = true;
 		do {
 			if (!user_input_is_valid) {
-				writeline("Invalid move: " + std::to_string(user_input));
+				writeline(std::format("Invalid move: {}", user_input));
 			}
 			if (can_split) {
 				writeline("Press 'h' to hit, 's' to stay, or 'p' to split.");
@@ -74,9 +75,11 @@ namespace blackjack_io
 	void print_game_state(const CardGames::BlackJack::GameState& state)
 	{
 		using namespace CardGames::BlackJack;
-		if (state.node() == GameNode::Ready) {
+		using enum GameNode;
+
+		if (state.node() == Ready) {
 			writeline("Let's play some blackjack!");
-		} else if (state.node() == GameNode::PlayersRound || state.node() == GameNode::DealersRound) {
+		} else if (state.node() == PlayersRound || state.node() == DealersRound) {
 			const auto& dealers_hand = state.dealer_hand().cards();
 			const auto& players_hand = state.players_hand().active_cards();
 			std::cout << "Dealer: ";
@@ -84,7 +87,7 @@ namespace blackjack_io
 			std::cout << "Player: ";
 			print_hand(players_hand);
 			std::cout << "(" << state.players_hand().active_total() << ")" << std::endl;
-		} else if (state.node() == GameNode::PlayersSplitRound) {
+		} else if (state.node() == PlayersSplitRound) {
 			const auto& dealers_hand = state.dealer_hand().cards();
 			std::cout << "Dealer: ";
 			print_hand_hide_some(dealers_hand, 1);
@@ -103,31 +106,30 @@ namespace blackjack_io
 				print_hand(hand.cards);
 				std::cout << "    (" << calculate_hand_value(hand.cards).total << ")" << std::endl;
 			}
-		} else if (state.node() == GameNode::GameOverPlayerWins) {
+		} else if (state.node() == GameOverPlayerWins) {
 			print_all_cards_face_up(state);
 			const auto player = state.players_hand().active_total();
 			const auto dealer = state.dealer_hand().total();
-			writeline("Congratulations! You win, " + std::to_string(player) + " to " +
-								std::to_string(dealer));
-		} else if (state.node() == GameNode::GameOverPlayerBusts) {
+			writeline(std::format("Congratulations! You win, {} to {}", player, dealer));
+		} else if (state.node() == GameOverPlayerBusts) {
 			print_all_cards_face_up(state);
 			const auto player = state.players_hand().active_total();
-			writeline("Sorry, you bust(" + std::to_string(player) + "). Dealer wins.");
-		} else if (state.node() == GameNode::GameOverDealerWins) {
+			writeline(std::format("Sorry, you bust({}). Dealer wins.", player));
+		} else if (state.node() == GameOverDealerWins) {
 			print_all_cards_face_up(state);
 			const auto player = state.players_hand().active_total();
 			const auto dealer = state.dealer_hand().total();
-			writeline("Dealer wins, " + std::to_string(dealer) + " to " + std::to_string(player));
-		} else if (state.node() == GameNode::GameOverDealerBusts) {
+			writeline(std::format("Dealer wins, {} to {}", dealer, player));
+		} else if (state.node() == GameOverDealerBusts) {
 			print_all_cards_face_up(state);
 			const auto dealer = state.dealer_hand().total();
-			writeline("Dealer busts (" + std::to_string(dealer) + "). You win!");
-		} else if (state.node() == GameNode::GameOverDraw) {
+			writeline(std::format("Dealer busts ({}). You win!", dealer));
+		} else if (state.node() == GameOverDraw) {
 			print_all_cards_face_up(state);
 			const auto player = state.players_hand().active_total();
 			const auto dealer = state.dealer_hand().total();
 			assert(player == dealer);
-			writeline("Draw, " + std::to_string(dealer) + " up.");
+			writeline(std::format("Draw, {} up.", dealer));
 		} else {
 			std::cout << "Unknown game node" << std::endl;
 		}
@@ -137,6 +139,7 @@ namespace blackjack_io
 void play_blackjack(CardGames::BlackJack::BlackjackConfig config = {})
 {
 	using namespace CardGames;
+	using enum BlackJack::GameNode;
 
 	auto game = BlackJack::Game{config};
 	blackjack_io::print_game_state(game.state());
@@ -145,8 +148,8 @@ void play_blackjack(CardGames::BlackJack::BlackjackConfig config = {})
 	blackjack_io::print_game_state(state);
 
 	// Player's turn - handles both normal and split rounds
-	while (state.node() == BlackJack::GameNode::PlayersRound ||
-	       state.node() == BlackJack::GameNode::PlayersSplitRound) {
+	while (state.node() == PlayersRound ||
+	       state.node() == PlayersSplitRound) {
 		const auto can_split = state.can_split();
 		const auto players_move = blackjack_io::get_move(can_split);
 		state = game.next(players_move);

@@ -32,17 +32,17 @@ QVariantMap GameController::cardToVariant(const Card& card) const
 
 QString GameController::gameState() const
 {
-    using Node = CardGames::BlackJack::GameNode;
+    using enum CardGames::BlackJack::GameNode;
     switch (m_game.state().node()) {
-        case Node::Ready: return "ready";
-        case Node::PlayersRound: return "playersTurn";
-        case Node::PlayersSplitRound: return "playersSplitTurn";
-        case Node::DealersRound: return "dealersTurn";
-        case Node::GameOverPlayerWins: return "playerWins";
-        case Node::GameOverPlayerBusts: return "playerBusts";
-        case Node::GameOverDealerWins: return "dealerWins";
-        case Node::GameOverDealerBusts: return "dealerBusts";
-        case Node::GameOverDraw: return "draw";
+        case Ready: return "ready";
+        case PlayersRound: return "playersTurn";
+        case PlayersSplitRound: return "playersSplitTurn";
+        case DealersRound: return "dealersTurn";
+        case GameOverPlayerWins: return "playerWins";
+        case GameOverPlayerBusts: return "playerBusts";
+        case GameOverDealerWins: return "dealerWins";
+        case GameOverDealerBusts: return "dealerBusts";
+        case GameOverDraw: return "draw";
     }
     return "unknown";
 }
@@ -82,16 +82,16 @@ bool GameController::canDeal() const
 
 bool GameController::canHit() const
 {
-    using Node = CardGames::BlackJack::GameNode;
+    using enum CardGames::BlackJack::GameNode;
     auto node = m_game.state().node();
-    return node == Node::PlayersRound || node == Node::PlayersSplitRound;
+    return node == PlayersRound || node == PlayersSplitRound;
 }
 
 bool GameController::canStay() const
 {
-    using Node = CardGames::BlackJack::GameNode;
+    using enum CardGames::BlackJack::GameNode;
     auto node = m_game.state().node();
-    return node == Node::PlayersRound || node == Node::PlayersSplitRound;
+    return node == PlayersRound || node == PlayersSplitRound;
 }
 
 bool GameController::canSplit() const
@@ -143,24 +143,24 @@ QVariantList GameController::playerHands() const
 
 bool GameController::isGameOver() const
 {
-    using Node = CardGames::BlackJack::GameNode;
+    using enum CardGames::BlackJack::GameNode;
     auto node = m_game.state().node();
-    return node == Node::GameOverPlayerWins ||
-           node == Node::GameOverPlayerBusts ||
-           node == Node::GameOverDealerWins ||
-           node == Node::GameOverDealerBusts ||
-           node == Node::GameOverDraw;
+    return node == GameOverPlayerWins ||
+           node == GameOverPlayerBusts ||
+           node == GameOverDealerWins ||
+           node == GameOverDealerBusts ||
+           node == GameOverDraw;
 }
 
 QString GameController::resultMessage() const
 {
-    using Node = CardGames::BlackJack::GameNode;
+    using enum CardGames::BlackJack::GameNode;
     switch (m_game.state().node()) {
-        case Node::GameOverPlayerWins: return "You win!";
-        case Node::GameOverPlayerBusts: return "Bust! You lose.";
-        case Node::GameOverDealerWins: return "Dealer wins.";
-        case Node::GameOverDealerBusts: return "Dealer busts! You win!";
-        case Node::GameOverDraw: return "Push (Draw).";
+        case GameOverPlayerWins: return "You win!";
+        case GameOverPlayerBusts: return "Bust! You lose.";
+        case GameOverDealerWins: return "Dealer wins.";
+        case GameOverDealerBusts: return "Dealer busts! You win!";
+        case GameOverDraw: return "Push (Draw).";
         default: return "";
     }
 }

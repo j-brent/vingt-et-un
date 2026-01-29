@@ -1,12 +1,13 @@
 #pragma once
 
-#include "CompileTimeChecks.h"
 #include "card.h"
 
 #include <algorithm>
 #include <array>
+#include <concepts>
 #include <iostream>
 #include <random>
+#include <span>
 #include <vector>
 
 class Deck
@@ -60,6 +61,8 @@ public:
 	Deck& operator=(const Deck&) = default;
 	Deck& operator=(Deck&&) = default;
 
+	bool operator==(const Deck&) const = default;
+
 	const std::vector<Card>& cards() const;
 
   Card deal();
@@ -78,35 +81,22 @@ private:
 	std::vector<Card> m_cards;
 };
 
-inline bool operator==(const Deck& lhs, const Deck& rhs)
-{
-	const auto& lhs_cards = lhs.cards();
-	const auto& rhs_cards = rhs.cards();
-	return lhs_cards.size() == rhs_cards.size() &&
-				 std::equal(begin(lhs_cards), end(lhs_cards), begin(rhs_cards));
-}
-
-inline bool operator!=(const Deck& lhs, const Deck& rhs)
-{
-  return !(lhs == rhs);
-}
-
-static_assert(is_regular<Deck>::value, "User-defined type Deck is not a regular type.");
+static_assert(std::regular<Deck>);
 
 Deck shuffle(const Deck& deck);
 
-inline std::vector<Card::Suit> slice_suits(const std::vector<Card>& cards)
+inline std::vector<Card::Suit> slice_suits(std::span<const Card> cards)
 {
 	auto suits = std::vector<Card::Suit>{};
-	std::transform(std::begin(cards), std::end(cards), std::back_inserter(suits),
+	std::ranges::transform(cards, std::back_inserter(suits),
 								 [](const auto& card) { return card.suit; });
 	return suits;
 }
 
-inline std::vector<Card::Rank> slice_face_values(const std::vector<Card>& cards)
+inline std::vector<Card::Rank> slice_face_values(std::span<const Card> cards)
 {
 	auto values = std::vector<Card::Rank>{};
-	std::transform(std::begin(cards), std::end(cards), std::back_inserter(values),
+	std::ranges::transform(cards, std::back_inserter(values),
 								 [](const auto& card) { return card.rank; });
 	return values;
 }

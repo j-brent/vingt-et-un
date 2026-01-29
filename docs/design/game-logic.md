@@ -4,7 +4,7 @@ This document describes the blackjack game state machine and scoring rules.
 
 ## State Machine
 
-The game progresses through states defined by `GameNode` enum (`src/blackjack-game.h:154-164`).
+The game progresses through states defined by `GameNode` enum (`src/blackjack-game.h:142-152`).
 
 ```mermaid
 stateDiagram-v2
@@ -63,7 +63,7 @@ stateDiagram-v2
 
 ## Scoring Rules
 
-Hand values are calculated by `calculate_hand_value()` (`src/blackjack-game.cpp:9-39`):
+Hand values are calculated by `calculate_hand_value()` (`src/blackjack-game.cpp:10-40`):
 
 | Card | Value |
 |------|-------|
@@ -73,12 +73,12 @@ Hand values are calculated by `calculate_hand_value()` (`src/blackjack-game.cpp:
 
 ### Soft Ace Handling
 
-The `HandValue` struct (`src/blackjack-game.h:13-17`) tracks:
+The `HandValue` struct (`src/blackjack-game.h:15-21`) tracks:
 - `total` - Final calculated total (after soft ace adjustment)
 - `is_soft` - True if an Ace is currently counted as 11
 - `soft_ace_count` - Number of Aces counted as 11
 
-Algorithm (`src/blackjack-game.cpp:9-39`):
+Algorithm (`src/blackjack-game.cpp:10-40`):
 1. Count all aces as 11 initially
 2. While total > 21 and soft aces remain:
    - Reduce one ace from 11 to 1 (subtract 10)
@@ -94,7 +94,7 @@ Example: A, A, 9
 
 ### DealersHand
 
-Simple container for dealer's cards (`src/blackjack-game.h:29-49`):
+Simple container for dealer's cards (`src/blackjack-game.h:28-45`):
 - `cards()` - Get the cards
 - `add(Card)` - Add a card
 - `value()` - Returns HandValue with soft ace logic
@@ -103,9 +103,9 @@ Simple container for dealer's cards (`src/blackjack-game.h:29-49`):
 
 ### PlayersHand
 
-Multi-hand container supporting splits (`src/blackjack-game.h:51-152`):
+Multi-hand container supporting splits (`src/blackjack-game.h:48-140`):
 
-#### SingleHand struct (`src/blackjack-game.h:54-68`)
+#### SingleHand struct (`src/blackjack-game.h:50-58`)
 - `cards` - The cards in this hand
 - `is_from_split` - True if this hand came from a split
 - `is_from_split_aces` - True if split from aces (one card only)
@@ -129,7 +129,7 @@ Multi-hand container supporting splits (`src/blackjack-game.h:51-152`):
 
 ## Dealer Auto-Play
 
-When the player stays (or all split hands complete), the dealer automatically plays via `play_dealer_turn()` (`src/blackjack-game.cpp:204-239`):
+When the player stays (or all split hands complete), the dealer automatically plays via `play_dealer_turn()` (`src/blackjack-game.cpp:208-245`):
 
 - **Must hit** on 16 or less
 - **Must hit** on soft 17 if `BlackjackConfig::hit_soft_17` is true (default)
@@ -139,7 +139,7 @@ The method loops until dealer busts or stands, then compares totals.
 
 ## Split Functionality
 
-When the player has two cards of the same rank, they can split (`src/blackjack-game.cpp:93-113`, `src/blackjack-game.cpp:160-187`):
+When the player has two cards of the same rank, they can split (`src/blackjack-game.cpp:97-117`, `src/blackjack-game.cpp:164-191`):
 
 1. Two hands are created from the original pair
 2. Each hand receives one additional card from the deck
@@ -152,7 +152,7 @@ When the player has two cards of the same rank, they can split (`src/blackjack-g
 
 ## Player Actions
 
-Defined in `Game::Play` enum (`src/blackjack-game.h:216`):
+Defined in `Game::Play` enum (`src/blackjack-game.h:197`):
 
 - **Deal** - Start the game, deal initial cards (2 to player, 2 to dealer)
 - **Hit** - Draw another card to active hand
@@ -161,7 +161,7 @@ Defined in `Game::Play` enum (`src/blackjack-game.h:216`):
 
 ## Configuration
 
-`BlackjackConfig` struct (`src/blackjack-game.h:206-211`):
+`BlackjackConfig` struct (`src/blackjack-game.h:188-192`):
 
 | Field | Default | Purpose |
 |-------|---------|---------|
@@ -171,18 +171,18 @@ Defined in `Game::Play` enum (`src/blackjack-game.h:216`):
 
 ## History Tracking
 
-The `Game` class maintains a `vector<GameState>` history (`src/blackjack-game.h:234`). Each state transition appends a new immutable `GameState` to this history. The current state is always `history.back()`.
+The `Game` class maintains a `vector<GameState>` history (`src/blackjack-game.h:215`). Each state transition appends a new immutable `GameState` to this history. The current state is always `history.back()`.
 
 ## File References
 
-- HandValue struct: `src/blackjack-game.h:13-23`
-- DealersHand class: `src/blackjack-game.h:29-49`
-- PlayersHand class: `src/blackjack-game.h:51-152`
-- GameNode enum: `src/blackjack-game.h:154-164`
-- GameState struct: `src/blackjack-game.h:166-204`
-- BlackjackConfig struct: `src/blackjack-game.h:206-211`
-- Game class: `src/blackjack-game.h:213-235`
-- calculate_hand_value(): `src/blackjack-game.cpp:9-39`
-- add_em_up(): `src/blackjack-game.cpp:41-44`
-- Game::next() state machine: `src/blackjack-game.cpp:46-202`
-- play_dealer_turn(): `src/blackjack-game.cpp:204-239`
+- HandValue struct: `src/blackjack-game.h:15-21`
+- DealersHand class: `src/blackjack-game.h:28-45`
+- PlayersHand class: `src/blackjack-game.h:48-140`
+- GameNode enum: `src/blackjack-game.h:142-152`
+- GameState struct: `src/blackjack-game.h:154-185`
+- BlackjackConfig struct: `src/blackjack-game.h:188-192`
+- Game class: `src/blackjack-game.h:194-216`
+- calculate_hand_value(): `src/blackjack-game.cpp:10-40`
+- add_em_up(): `src/blackjack-game.cpp:42-45`
+- Game::next() state machine: `src/blackjack-game.cpp:47-206`
+- play_dealer_turn(): `src/blackjack-game.cpp:208-245`
