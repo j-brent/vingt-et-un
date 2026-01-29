@@ -179,9 +179,9 @@ FUNCTION getStaggeredPositions(shape, edge, numArrows):
 
 ---
 
-## Arrow Bindings
+## Arrow Bindings (Required)
 
-For better visual attachment, use `startBinding` and `endBinding`:
+Every arrow MUST have `startBinding` and `endBinding` to connect arrows to shapes. Without these, arrows are merely positional and will detach when shapes move.
 
 ```json
 {

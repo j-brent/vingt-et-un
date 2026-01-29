@@ -159,8 +159,10 @@ For each relationship:
 2. Plan elbow route (avoid overlaps)
 3. Create arrow with `points` array
 4. Match stroke color to destination type
+5. Set `startBinding` and `endBinding` with `elementId`, `focus: 0`, `gap: 1`, and `fixedPoint` matching the edge used (see `references/arrows.md` § Arrow Bindings)
+6. Update the source and target shape `boundElements` arrays to include `{ "type": "arrow", "id": "<arrow-id>" }` alongside any existing text bindings
 
-**Arrow patterns:** See `references/arrows.md`
+**Arrow patterns and bindings:** See `references/arrows.md`
 
 ### Step 5: Add Grouping (Optional)
 
@@ -232,6 +234,8 @@ Before writing file:
 - [ ] Multi-point arrows have `elbowed: true`, `roundness: null`
 - [ ] Arrow x,y = source shape edge point
 - [ ] Arrow final point offset reaches target edge
+- [ ] Every arrow has `startBinding` and `endBinding` referencing valid shape IDs
+- [ ] Every connected shape's `boundElements` includes its arrow references
 - [ ] No diamond shapes
 - [ ] No duplicate IDs
 

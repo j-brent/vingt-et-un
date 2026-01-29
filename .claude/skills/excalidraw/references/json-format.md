@@ -104,8 +104,11 @@ Every element MUST have these properties:
   "height": 90,
   "strokeColor": "#1971c2",
   "backgroundColor": "#a5d8ff",
-  "boundElements": [{ "type": "text", "id": "{component-id}-text" }],
-  // ... other required properties
+  "boundElements": [
+    { "type": "text", "id": "{component-id}-text" },
+    { "type": "arrow", "id": "arrow-to-{component-id}" }
+  ],
+  // ... other required properties (arrow entries added in Step 4)
 }
 ```
 

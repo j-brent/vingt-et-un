@@ -21,7 +21,7 @@ FUNCTION validateDiagram(elements):
       ELSE IF textElement.containerId != shape.id:
         errors.append("Text containerId doesn't match shape")
 
-  // 2. Validate arrow connections
+  // 2. Validate arrow connections and bindings
   FOR each arrow IN elements WHERE arrow.type == "arrow":
     sourceShape = findShapeNear(elements, arrow.x, arrow.y)
     IF sourceShape == null:
@@ -39,6 +39,25 @@ FUNCTION validateDiagram(elements):
         errors.append("Arrow {arrow.id} missing elbowed:true")
       IF arrow.roundness != null:
         errors.append("Arrow {arrow.id} should have roundness:null")
+
+    // 2b. Validate arrow bindings
+    IF arrow.startBinding == null:
+      errors.append("Arrow {arrow.id} missing startBinding")
+    ELSE:
+      startShape = findById(elements, arrow.startBinding.elementId)
+      IF startShape == null:
+        errors.append("Arrow {arrow.id} startBinding references missing element")
+      ELSE IF NOT startShape.boundElements.contains(arrow.id):
+        errors.append("Shape {startShape.id} missing arrow {arrow.id} in boundElements")
+
+    IF arrow.endBinding == null:
+      errors.append("Arrow {arrow.id} missing endBinding")
+    ELSE:
+      endShape = findById(elements, arrow.endBinding.elementId)
+      IF endShape == null:
+        errors.append("Arrow {arrow.id} endBinding references missing element")
+      ELSE IF NOT endShape.boundElements.contains(arrow.id):
+        errors.append("Shape {endShape.id} missing arrow {arrow.id} in boundElements")
 
   // 3. Validate unique IDs
   ids = [el.id for el in elements]
@@ -106,6 +125,8 @@ FUNCTION findShapeNear(elements, x, y, tolerance=15):
 - [ ] All `containerId` values reference valid shapes
 - [ ] All arrows start within 15px of shape edge
 - [ ] All arrows end within 15px of shape edge
+- [ ] All arrows have `startBinding` and `endBinding` referencing valid shape IDs
+- [ ] All connected shapes have arrow IDs in their `boundElements`
 - [ ] No duplicate IDs
 - [ ] Arrow bounding boxes match points
 - [ ] File is valid JSON
