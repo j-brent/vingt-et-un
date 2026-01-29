@@ -48,8 +48,8 @@ namespace blackjack_io
 			}
 			user_input = std::cin.get();
 			std::cin.get(); // flush out 'Enter'
-			user_input_is_valid = user_input == 'h' || user_input == 's' ||
-			                      (can_split && user_input == 'p');
+			user_input_is_valid =
+				user_input == 'h' || user_input == 's' || (can_split && user_input == 'p');
 		} while (!user_input_is_valid);
 
 		switch (user_input) {
@@ -148,8 +148,7 @@ void play_blackjack(CardGames::BlackJack::BlackjackConfig config = {})
 	blackjack_io::print_game_state(state);
 
 	// Player's turn - handles both normal and split rounds
-	while (state.node() == PlayersRound ||
-	       state.node() == PlayersSplitRound) {
+	while (state.node() == PlayersRound || state.node() == PlayersSplitRound) {
 		const auto can_split = state.can_split();
 		const auto players_move = blackjack_io::get_move(can_split);
 		state = game.next(players_move);

@@ -18,7 +18,7 @@ namespace
 
 std::ostream& operator<<(std::ostream& os, const Card::Rank& value)
 {
-  using Rank = Card::Rank;
+	using Rank = Card::Rank;
 
 	switch (value) {
 		case Rank::Two: os << "2"; break;
@@ -41,7 +41,7 @@ std::ostream& operator<<(std::ostream& os, const Card::Rank& value)
 
 std::ostream& operator<<(std::ostream& os, const Card::Suit& suit)
 {
-  using Suit = Card::Suit;
+	using Suit = Card::Suit;
 
 	switch (suit) {
 		case Suit::Clubs: os << "Clubs"; break;
@@ -72,7 +72,7 @@ void print(const Deck& deck)
 
 std::wostream& operator<<(std::wostream& os, const Card::Rank& value)
 {
-  using Rank = Card::Rank;
+	using Rank = Card::Rank;
 
 	switch (value) {
 		case Rank::Two: os << L" 2"; break;
@@ -109,8 +109,8 @@ std::wostream& operator<<(std::wostream& os, const Suit& suit)
 #else
 std::wostream& operator<<(std::wostream& os, const Card::Suit& suit)
 {
-  using Suit = Card::Suit;
-  
+	using Suit = Card::Suit;
+
 	switch (suit) {
 		case Suit::Clubs: os << L"C"; break;
 		case Suit::Diamonds: os << L"D"; break;
